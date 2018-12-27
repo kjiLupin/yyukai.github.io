@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="IPMIIPMI是智能型平台管理接口(Intelligent Platform Management Interface)的缩写，是管理基于 Intel结构的企业系统中所使用的外围设备采用的一种工业标准，该标准由英特尔、惠普、NEC、美国戴尔电脑和SuperMicro等公司制定。用户可以利用IPMI监视服务器的物理健康特征，如温度、电压、风扇工作状态、电源状态等。 IPMI工作原理IPMI的核心是">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://yoursite.com/images/linux/virtualization/ipmi.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="IPMIIPMI是智能型平台管理接口(Intelligent Platform Management Interface)的缩写，是管理基于 Intel结构的企业系统中所使用的外围设备采用的一种工业标准，该标准由英特尔、惠普、NEC、美国戴尔电脑和SuperMicro等公司制定。用户可以利用IPMI监视服务器的物理健康特征，如温度、电压、风扇工作状态、电源状态等。 IPMI工作原理IPMI的核心是">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-12-25T10:48:04.993Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo">
+<meta name="twitter:description" content="IPMIIPMI是智能型平台管理接口(Intelligent Platform Management Interface)的缩写，是管理基于 Intel结构的企业系统中所使用的外围设备采用的一种工业标准，该标准由英特尔、惠普、NEC、美国戴尔电脑和SuperMicro等公司制定。用户可以利用IPMI监视服务器的物理健康特征，如温度、电压、风扇工作状态、电源状态等。 IPMI工作原理IPMI的核心是">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/images/linux/virtualization/ipmi.html">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title> | Hexo</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+    
+    
+      
+      
+    
+      
+      
+    
+    
+
+  
+
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+    
+    
+    <div class="post-block page">
+      <header class="post-header">
+
+<h1 class="post-title" itemprop="name headline"></h1>
+
+<div class="post-meta">
+  
+  
+
+
+  
+  
+  <ul class="breadcrumb">
+    
+      
+      
+        
+          <li><a href="/images/">IMAGES</a></li>
+          
+            
+          
+        
+      
+    
+      
+      
+        
+          <li><a href="/images/linux/">LINUX</a></li>
+          
+            
+          
+        
+      
+    
+      
+      
+        
+          <li>VIRTUALIZATION</li>
+        
+      
+    
+      
+      
+        
+          <li><a href="/images/linux/ipmi.html/">IPMI.HTML</a></li>
+          
+            
+          
+        
+      
+    
+  </ul>
+
+
+</div>
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+        
+        
+          <h1 id="IPMI"><a href="#IPMI" class="headerlink" title="IPMI"></a>IPMI</h1><p>IPMI是智能型平台管理接口(Intelligent Platform Management Interface)的缩写，是管理基于 Intel结构的企业系统中所使用的外围设备采用的一种工业标准，该标准由英特尔、惠普、NEC、美国戴尔电脑和SuperMicro等公司制定。用户可以利用IPMI监视服务器的物理健康特征，如温度、电压、风扇工作状态、电源状态等。</p>
+<h1 id="IPMI工作原理"><a href="#IPMI工作原理" class="headerlink" title="IPMI工作原理"></a>IPMI工作原理</h1><p>IPMI的核心是一个专用芯片/控制器(叫做服务器处理器或基板管理控制器(BMC))，其并不依赖于服务器的处理器、BIOS或操作系统来工作，可谓非常地独立，是一个单独在系统内运行的无代理管理子系统，只要有BMC与IPMI固件其便可开始工作，而BMC通常是一个安装在服务器主板上的独立的板卡，现在也有服务器主板提供对IPMI支持的。IPMI良好的自治特性便克服了以往基于操作系统的管理方式所受的限制，例如操作系统不响应或未加载的情况下其仍然可以进行开关机、信息提取等操作。</p>
+<p>在工作时，所有的IPMI功能都是向BMC发送命令来完成的，命令使用IPMI规范中规定的指令，BMC接收并在系统事件日志中记录事件消息，维护描述系统中传感器情况的传感器数据记录。在需要远程访问系统时，IPMI新的LAN上串行(SOL)特性很有用。SOL改变IPMI会话过程中本地串口传送方向，从而提供对紧急管理服务、Windows专用管理控制台或Linux串行控制台的远程访问。BMC通过在LAN上改变传送给 串行端口的信息的方向来做到这点，提供了一种与厂商无关的 远程查询启动、操作系统加载器或紧急管理控制台来诊断和维修故障的标准方式。 </p>
+<p>当需要对系统 文本控制台进行远程访问时，Serial Over LAN (SOL) 功能将非常有用。SOL 通过 IPMI 会话重定向本地串行接口，允许远程访问 Windows 的紧急事件管理控制台 (EMS) 特殊管理控制台 (SAC)，或访问 LINUX 串行控制台。这个过程的步骤是 IPMI 固件截取数据，然后通过局域网重新发送定向到串行端口的信息。 这就提供了远程查看 BOOT、OS 加载器或紧急事件管理控制台以诊断并修复服务器相关问题的标准方法，而无需考虑供应商。它允许在引导阶段配置各种组件。 </p>
+<h2 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">setup IP and access:</span><br><span class="line">  ipmitool channel info 1</span><br><span class="line">  ipmitool lan set 1 ipaddr &lt;someIP&gt;</span><br><span class="line">  ipmitool lan set 1 netmask 255.255.0.0</span><br><span class="line">  ipmitool lan set 1 auth ADMIN MD5,PASSWORD</span><br><span class="line">  ipmitool lan set 1 ipsrc static</span><br><span class="line">  ipmitool lan set 1 arp respond on</span><br><span class="line">  ipmitool lan set 1 arp generate on</span><br><span class="line">  ipmitool lan set 1 arp interval 5</span><br><span class="line">  ipmitool lan print 1</span><br><span class="line">  ipmitool lan set 1 access on</span><br><span class="line"></span><br><span class="line">and then setup a user called &apos;admin&apos;</span><br><span class="line">  ipmitool user set name 2 admin</span><br><span class="line">  ipmitool user set password 2 &lt;some passwd&gt;</span><br><span class="line">  #ipmitool user priv 2 4 1</span><br><span class="line">  ipmitool channel setaccess 1 2 callin=on ipmi=on link=on privilege=4</span><br><span class="line">  ipmitool user list 1</span><br><span class="line">  ipmitool user enable 2</span><br><span class="line"></span><br><span class="line">and the sol setup continues over the lanplus interface:</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol info</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol set privilege-level admin</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol set non-volatile-bit-rate 115.2</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol set volatile-bit-rate serial</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol set force-encryption true</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol set enabled true</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol set retry-interval 2</span><br><span class="line">   ipmitool -I lanplus -H &lt;someIP&gt; -U admin -P &lt;some passwd&gt; -v -o intelplus sol payload enable 1 2</span><br></pre></td></tr></table></figure>
+<p>Tips:<br>For the Dell you’d drop the ‘-o intelplus’ but the rest should still apply. channel numbers might vary (the above is 1), and the SGI BIOS talks to ttyS1 instead of ttyS0.</p>
+<h2 id="IPMI管理工具"><a href="#IPMI管理工具" class="headerlink" title="IPMI管理工具"></a>IPMI管理工具</h2><ul>
+<li>open<ul>
+<li>OpenIPMI与本地 BMC通信。</li>
+</ul>
+</li>
+<li>lan<ul>
+<li>通过Ethernet LAN网用IPV4的udp协议与BMC通信。UDP的数据段包含了IPMI request/resoponse消息，消息具有一个IPMI session 头和RMCP 头。</li>
+<li>IPMI使用Remote Management Control Protocol (RMCP) 版本1支持操作系统关闭(pre-OS和OS-absent)，RMCP把把数据发送到UDP的623端口。</li>
+</ul>
+</li>
+<li>lanplus<ul>
+<li>同样使用 Ethernet LAN 的UDP协议与BMC通信，但是lanplus使用RMCP＋协议(在IPMIV20中描述)来同新，RMCP+允许使用改经的认证方式和数据完整性检查。</li>
+</ul>
+</li>
+</ul>
+<h2 id="arp设置"><a href="#arp设置" class="headerlink" title="arp设置"></a>arp设置</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># ipmitool lan set 1 arp generate on # 设置1 开启 arp响应。 </span><br><span class="line">Enabling BMC-generated Gratuitous ARPs</span><br><span class="line"># ipmitool lan set 1 arp interval 5  # 设置1 arp 响应间隔 5秒</span><br><span class="line">BMC-generated Gratuitous ARP interval:  5.0 seconds</span><br></pre></td></tr></table></figure>
+<h2 id="错误"><a href="#错误" class="headerlink" title="错误"></a>错误</h2><ol>
+<li>Could not open device at /dev/ipmi0 or /dev/ipmi/0 or /dev/ipmidev/0: No such file or directory<br>Get Channel Info command failed</li>
+</ol>
+<ul>
+<li><p>查看模块是否载入</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># lsmod |grep ipmi</span><br><span class="line">ipmi_devintf           11973  0</span><br><span class="line">ipmi_si                32317  0</span><br><span class="line">ipmi_msghandler        33317  2 	ipmi_devintf,ipmi_si</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动创建设备</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># mknod /dev/ipmi0 c `cat /proc/devices | grep ipmidev |cut -d &quot; &quot; -f 1` 0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+        
+      </div>
+      
+      
+      
+    </div>
+    
+
+
+  
+  
+  <ul class="breadcrumb">
+    
+      
+      
+        
+          <li><a href="/images/">IMAGES</a></li>
+          
+            
+          
+        
+      
+    
+      
+      
+        
+          <li><a href="/images/linux/">LINUX</a></li>
+          
+            
+          
+        
+      
+    
+      
+      
+        
+          <li>VIRTUALIZATION</li>
+        
+      
+    
+      
+      
+        
+          <li><a href="/images/linux/ipmi.html/">IPMI.HTML</a></li>
+          
+            
+          
+        
+      
+    
+  </ul>
+
+
+    
+    
+    
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">categories</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPMI"><span class="nav-number">1.</span> <span class="nav-text">IPMI</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPMI工作原理"><span class="nav-number">2.</span> <span class="nav-text">IPMI工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#设置"><span class="nav-number">2.1.</span> <span class="nav-text">设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IPMI管理工具"><span class="nav-number">2.2.</span> <span class="nav-text">IPMI管理工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#arp设置"><span class="nav-number">2.3.</span> <span class="nav-text">arp设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错误"><span class="nav-number">2.4.</span> <span class="nav-text">错误</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v6.5.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

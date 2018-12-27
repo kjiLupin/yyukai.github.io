@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言为了更能通俗易懂的理解我们即将要的性能调优的话题，我在这里简单的和大家说一下我写这篇文章的写作方法 “5w+1h”方法。 5w+1h 就是对所做工作进行科学的分析，对某一工作在调查研究的基础上，就其工作内容（What）、责任者（Who）、工作岗位（Where）、工作时间（When）、怎样操作（How）以及为何这样做（Why），即”5W”、”1H”进行书面描述，并按此描述进行操作，达到完成职务任">
+<meta name="keywords" content="linux,tuning,调优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Overview of Performance Tuning">
+<meta property="og:url" content="http://yoursite.com/2018/11/06/linux/performance-tuning/overview-of-performance-tuning/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言为了更能通俗易懂的理解我们即将要的性能调优的话题，我在这里简单的和大家说一下我写这篇文章的写作方法 “5w+1h”方法。 5w+1h 就是对所做工作进行科学的分析，对某一工作在调查研究的基础上，就其工作内容（What）、责任者（Who）、工作岗位（Where）、工作时间（When）、怎样操作（How）以及为何这样做（Why），即”5W”、”1H”进行书面描述，并按此描述进行操作，达到完成职务任">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/linux/performance-tuning/linux_architecture.jpg">
+<meta property="og:updated_time" content="2018-12-07T13:43:49.678Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Overview of Performance Tuning">
+<meta name="twitter:description" content="前言为了更能通俗易懂的理解我们即将要的性能调优的话题，我在这里简单的和大家说一下我写这篇文章的写作方法 “5w+1h”方法。 5w+1h 就是对所做工作进行科学的分析，对某一工作在调查研究的基础上，就其工作内容（What）、责任者（Who）、工作岗位（Where）、工作时间（When）、怎样操作（How）以及为何这样做（Why），即”5W”、”1H”进行书面描述，并按此描述进行操作，达到完成职务任">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/performance-tuning/linux_architecture.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/06/linux/performance-tuning/overview-of-performance-tuning/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Overview of Performance Tuning | Hexo</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/06/linux/performance-tuning/overview-of-performance-tuning/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Overview of Performance Tuning
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-11-06 08:55:29" itemprop="dateCreated datePublished" datetime="2018-11-06T08:55:29+08:00">2018-11-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-07 21:43:49" itemprop="dateModified" datetime="2018-12-07T21:43:49+08:00">2018-12-07</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>为了更能通俗易懂的理解我们即将要的性能调优的话题，我在这里简单的和大家说一下我写这篇文章的写作方法 “5w+1h”方法。</p>
+<p>5w+1h 就是对所做工作进行科学的分析，对某一工作在调查研究的基础上，就其工作内容（What）、责任者（Who）、工作岗位（Where）、工作时间（When）、怎样操作（How）以及为何这样做（Why），即”5W”、”1H”进行书面描述，并按此描述进行操作，达到完成职务任务的目标。</p>
+<h1 id="什么是性能调优？-what"><a href="#什么是性能调优？-what" class="headerlink" title="什么是性能调优？(what)"></a>什么是性能调优？(what)</h1><p><img src="/images/linux/performance-tuning/linux_architecture.jpg" alt="linux-architecture"></p>
+<p>在说什么是性能调优之前我们先来说一下，计算机的体系结构。如上图，简单来说包括三块：硬件、操作系统、应用程序。其实，性能调优就是调节这些内容，包括硬件、操作系统、应用程序。</p>
+<p>其中，这三大方面中又包含了若干的内容。硬件包括CPU、内存、磁盘、网卡等，操作系统包括进程、虚拟内存、文件系统、网络等，应用程序常见的有Apache、MySQL、Nginx、Memcahed等。</p>
+<p>那什么是性能调优呢？性能调优就是对计算机硬件、操作系统和应用有相当深入的了解，调节三者之间的关系，实现整个系统（包括硬件、操作系统、应用）的性能最大化，并能不断的满足现有的业务需求。</p>
+<h1 id="为什么需要性能调优？-why"><a href="#为什么需要性能调优？-why" class="headerlink" title="为什么需要性能调优？(why)"></a>为什么需要性能调优？(why)</h1><p>当一个发行版打包发送到客户手中的时候，它是为了完全兼容市场中大部分计算机而设计的。这是一个相当混杂的硬件集合（硬盘，显卡，网卡，等等）。所以Red Hat， SUSE，Mandriva，Ubuntu 和其他的一些发行版厂商选择了一些通用的设置来确保安装成功。</p>
+<h1 id="什么时候需要性能调优？-when"><a href="#什么时候需要性能调优？-when" class="headerlink" title="什么时候需要性能调优？(when)"></a>什么时候需要性能调优？(when)</h1><ul>
+<li><p>上线前（基本优化）</p>
+<p>  包括操作系统优化和应用环境优化等，我称上线前的优化为基本优化也称为经验优化。根据你做过的项目和你工作中的经验对上线前的服务器或架构进行基本的性能优化来满足业务需求。</p>
+</li>
+<li><p>上线后（持续优化）</p>
+<p>  对上线后的项目进行性能监控包括服务器性能监控和服务性能监控，其中服务器性能监控包括CPU使用率、CPU负载、内存使用率、磁盘I/O、磁盘空间使用率、网络流量、系统进程等，服务性能监控包括apache、nginx、mysql等架构中所有的服务都需要进行性能监控，一但发现有问题我们都得去进行性能优化，在这个过程中我称为持续优化也称为监控优化。</p>
+</li>
+</ul>
+<h1 id="什么地方需要性能调优？-where"><a href="#什么地方需要性能调优？-where" class="headerlink" title="什么地方需要性能调优？(where)"></a>什么地方需要性能调优？(where)</h1><ul>
+<li><p>硬件 （CPU、内存、磁盘、网卡）</p>
+</li>
+<li><p>操作系统（进程、文件系统、内核）</p>
+</li>
+<li><p>应用程序（Nginx、MySQL）</p>
+</li>
+</ul>
+<h1 id="什么人来进行性能调优？-who"><a href="#什么人来进行性能调优？-who" class="headerlink" title="什么人来进行性能调优？(who)"></a>什么人来进行性能调优？(who)</h1><p>一说起性能优化我们第一个想到的是运维工程师，他们来进行优化。其实我想说，这么说是片面的性能优化不仅仅是运维工程师的事。其实呢，性能优化是一个团队的事。我为什么这么说呢？下面我们想一下公司要做一个项目，那项目的具体流程是什么呢？可能不是很详细，但大体过程是样的：</p>
+<ul>
+<li>运营提出需求</li>
+<li>产品整理需求</li>
+<li>开发开发具体的业务应用</li>
+<li>运维搭建开发环境</li>
+<li>QA 进行项目测试</li>
+<li>运维进行项目上线</li>
+<li>监控进行项目监控</li>
+<li>……</li>
+</ul>
+<p>需要运营部、产品部、开发部、运维部、QA （测试）、监控等所有部门的参加，同样的一个项目（业务）存在性能问题，不会只是运维部门需要性能调优而是所以部门一起解决这个性能问题，这是缺一不可的。可能出现在产品，也可能出现在程序上，也可能是业务需要本身就有问题，也可能是运维的环境搭建有问题。但参加性能调优的更多的是开发、运维、测试和监控。</p>
+<h1 id="怎么样进行性能调优？-How"><a href="#怎么样进行性能调优？-How" class="headerlink" title="怎么样进行性能调优？(How)"></a>怎么样进行性能调优？(How)</h1><p>说一说怎么进行性能调优，具体步骤如下：</p>
+<ul>
+<li>性能指标 –&gt; 确认衡量标准</li>
+<li>性能测试 –&gt; 验证性能指标</li>
+<li>性能分析 –&gt; 找出性能瓶颈</li>
+<li>性能调优 –&gt; 解决性能问题</li>
+<li>性能监控 –&gt; 检验调优效果</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在这篇“性能优化概述”的博文中我只是给大家讲解一下具体的优化思路，帮助大家理解性能优化，这样大家更容易理解一些，让大家知道性能优化并不是传说中的那么难，难到不可动手去做，只要我们掌握好方法，什么难题都可以解决。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/tuning/" rel="tag"># tuning</a>
+          
+            <a href="/tags/调优/" rel="tag"># 调优</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/07/linux/performance-tuning/Linux-Performance-Tuning/" rel="prev" title="Linux System Tuning">
+                Linux System Tuning <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">categories</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是性能调优？-what"><span class="nav-number">2.</span> <span class="nav-text">什么是性能调优？(what)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么需要性能调优？-why"><span class="nav-number">3.</span> <span class="nav-text">为什么需要性能调优？(why)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么时候需要性能调优？-when"><span class="nav-number">4.</span> <span class="nav-text">什么时候需要性能调优？(when)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么地方需要性能调优？-where"><span class="nav-number">5.</span> <span class="nav-text">什么地方需要性能调优？(where)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么人来进行性能调优？-who"><span class="nav-number">6.</span> <span class="nav-text">什么人来进行性能调优？(who)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#怎么样进行性能调优？-How"><span class="nav-number">7.</span> <span class="nav-text">怎么样进行性能调优？(How)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v6.5.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

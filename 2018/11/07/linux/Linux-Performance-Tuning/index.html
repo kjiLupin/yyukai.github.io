@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言Purpose of Performance Tuning 将系统调节成扮演某个角色。譬如：数据库服务器、WEB服务器、文件服务器、邮件服务器等等。 找到并缓解系统瓶颈 调优指标：响应速度，吞吐量 CPU、内存等硬件在最优情况下等达到最高的性能，你必须清楚。    Required Skills Understand both hardware and software Collecting">
+<meta name="keywords" content="linux,tuning,调优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux System Tuning">
+<meta property="og:url" content="http://yoursite.com/2018/11/07/linux/Linux-Performance-Tuning/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言Purpose of Performance Tuning 将系统调节成扮演某个角色。譬如：数据库服务器、WEB服务器、文件服务器、邮件服务器等等。 找到并缓解系统瓶颈 调优指标：响应速度，吞吐量 CPU、内存等硬件在最优情况下等达到最高的性能，你必须清楚。    Required Skills Understand both hardware and software Collecting">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/uma.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/numa.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/numa-mac.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/storage-bandwidth.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/ssd-garbage-collection.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/pci-bandwidth.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/linux_observability_tools.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/linux_benchmarking_tools.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/linux_tuning_tools.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/linux_observability_sar.png">
+<meta property="og:image" content="http://yoursite.com/images/linux/system-tuning/linux_perf_tools_full.png">
+<meta property="og:updated_time" content="2018-12-04T08:54:48.084Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux System Tuning">
+<meta name="twitter:description" content="前言Purpose of Performance Tuning 将系统调节成扮演某个角色。譬如：数据库服务器、WEB服务器、文件服务器、邮件服务器等等。 找到并缓解系统瓶颈 调优指标：响应速度，吞吐量 CPU、内存等硬件在最优情况下等达到最高的性能，你必须清楚。    Required Skills Understand both hardware and software Collecting">
+<meta name="twitter:image" content="http://yoursite.com/images/linux/system-tuning/uma.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/07/linux/Linux-Performance-Tuning/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Linux System Tuning | Hexo</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/07/linux/Linux-Performance-Tuning/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux System Tuning
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-11-07 08:55:29" itemprop="dateCreated datePublished" datetime="2018-11-07T08:55:29+08:00">2018-11-07</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-04 16:54:48" itemprop="dateModified" datetime="2018-12-04T16:54:48+08:00">2018-12-04</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><h2 id="Purpose-of-Performance-Tuning"><a href="#Purpose-of-Performance-Tuning" class="headerlink" title="Purpose of Performance Tuning"></a>Purpose of Performance Tuning</h2><ul>
+<li>将系统调节成扮演某个角色。譬如：数据库服务器、WEB服务器、文件服务器、邮件服务器等等。</li>
+<li>找到并缓解系统瓶颈</li>
+<li>调优指标：响应速度，吞吐量<ul>
+<li>CPU、内存等硬件在最优情况下等达到最高的性能，你必须清楚。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Required-Skills"><a href="#Required-Skills" class="headerlink" title="Required Skills"></a>Required Skills</h2><ul>
+<li>Understand both hardware and software</li>
+<li>Collecting and analysis of measurable relevant data about a performance problem</li>
+<li>Set proper expectations</li>
+<li>5 years full time system management experience</li>
+</ul>
+<h2 id="Tuning-Efficiency（调优效率）"><a href="#Tuning-Efficiency（调优效率）" class="headerlink" title="Tuning Efficiency（调优效率）"></a>Tuning Efficiency（调优效率）</h2><ul>
+<li><p>Business Level Tuning</p>
+<ul>
+<li>Ask right question: “Reduce CPU utilization” or “Business goal”</li>
+<li>Adjust workflow（调整业务的流程，减少对系统的不必要请求）</li>
+<li>Removing unused services<ul>
+<li>PC Smart Card Daemon</li>
+<li>Buletooth and hidd</li>
+</ul>
+</li>
+<li>Do i really need the default cron jobs?<ul>
+<li>/etc/cron.daily/makewhatis.cron</li>
+<li>/etc/cron.daily/mlocate.cron</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Application Level Tuning</p>
+<ul>
+<li>Disable or defer expensive operations until analysis?（禁用或延迟对系统而言“很贵的”操作）<ul>
+<li>Disable reverse name lookups</li>
+<li>Set loglevel to warn for most production daemons</li>
+</ul>
+</li>
+<li>Is syslogd a bottleneck?<ul>
+<li>Daemon uses fsync() to flush every file write（系统为保证日志文件不丢失，会立刻调用fsync方法将数据写入磁盘）</li>
+<li>Disable by prepending hyphen to name of log file in /etc/rsyslog.conf（在日志文件加“-”号，该日志会滞后写入）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>应用层调优，调的是应用程序本身。譬如你使用nginx、nfs，它们本身有大量的参数可用来调优。在应用层调优远远优于内核调优。</p>
+<ul>
+<li>Kernel Level Tuning(RH442)</li>
+</ul>
+<p>从上往下优化空间越来越小，效果越来越不明显。譬如目前你的WEB Server是apache，调优前首先考虑是否非得使用apache，我们的业务是否是高并发，能不能换成nginx。能够在顶层解决问题，尽量不要希望在底层去解决。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>一个命令敲下去，性能提高10%、20%，这是不切合实际的。红帽操作系统已经调优过了，我们是为了某个特定的角色再进行调优。</li>
+<li>不同角色的系统有不同调优的参数，不能指望一个参数搞定所有事情。</li>
+<li>物理级别的缺陷，比如硬盘、网卡等由于寿命原因性能大幅下降，则系统层面调优见效甚微。</li>
+</ul>
+<h1 id="Understand-Hardware"><a href="#Understand-Hardware" class="headerlink" title="Understand Hardware"></a>Understand Hardware</h1><h2 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h2><h3 id="X86架构机器三个特点（RH442）"><a href="#X86架构机器三个特点（RH442）" class="headerlink" title="X86架构机器三个特点（RH442）"></a>X86架构机器三个特点（RH442）</h3><ul>
+<li>I/O Address</li>
+<li>IRQ（中断请求）</li>
+<li>DMA（直接内存存取）</li>
+</ul>
+<h4 id="查看CPU"><a href="#查看CPU" class="headerlink" title="查看CPU"></a>查看CPU</h4><ul>
+<li><p>总览</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"># lscpu </span><br><span class="line">Architecture:          x86_64           #x86架构</span><br><span class="line">CPU op-mode(s):        32-bit, 64-bit</span><br><span class="line">Byte Order:            Little Endian</span><br><span class="line">CPU(s):                40               #逻辑CPU个数</span><br><span class="line">On-line CPU(s) list:   0-39</span><br><span class="line">Thread(s) per core:    2                #每核的线程数</span><br><span class="line">Core(s) per socket:    10               #每颗CPU的核数</span><br><span class="line">Socket(s):             2                #物理CPU个数</span><br><span class="line">NUMA node(s):          2                # NUMA节点数</span><br><span class="line">Vendor ID:             GenuineIntel</span><br><span class="line">CPU family:            6</span><br><span class="line">Model:                 79</span><br><span class="line">Model name:            Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz</span><br><span class="line">Stepping:              1</span><br><span class="line">CPU MHz:               1200.093</span><br><span class="line">BogoMIPS:              4805.86</span><br><span class="line">Virtualization:        VT-x</span><br><span class="line">L1d cache:             32K             #一级数据缓存</span><br><span class="line">L1i cache:             32K             #一级指令缓存</span><br><span class="line">L2 cache:              256K            #二级缓存</span><br><span class="line">L3 cache:              25600K          #三级缓存</span><br><span class="line">NUMA node0 CPU(s):     0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38</span><br><span class="line">NUMA node1 CPU(s):     1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39</span><br><span class="line"></span><br><span class="line"># lscpu </span><br><span class="line">Architecture:          x86_64           #x86架构</span><br><span class="line">CPU op-mode(s):        32-bit, 64-bit</span><br><span class="line">Byte Order:            Little Endian</span><br><span class="line">CPU(s):                8                #逻辑CPU个数</span><br><span class="line">On-line CPU(s) list:   0-7</span><br><span class="line">Thread(s) per core:    1                #每核的线程数</span><br><span class="line">Core(s) per socket:    4                #每颗CPU的核数</span><br><span class="line">Socket(s):             2                #物理CPU个数</span><br><span class="line">NUMA node(s):          2                # NUMA节点数</span><br><span class="line">Vendor ID:             GenuineIntel</span><br><span class="line">CPU family:            6</span><br><span class="line">Model:                 62</span><br><span class="line">Stepping:              4</span><br><span class="line">CPU MHz:               2499.904</span><br><span class="line">BogoMIPS:              4999.28</span><br><span class="line">Virtualization:        VT-x</span><br><span class="line">L1d cache:             32K             #一级数据缓存</span><br><span class="line">L1i cache:             32K             #一级指令缓存</span><br><span class="line">L2 cache:              256K            #二级缓存</span><br><span class="line">L3 cache:              10240K          #三级缓存</span><br><span class="line">NUMA node0 CPU(s):     0,2,4,6</span><br><span class="line">NUMA node1 CPU(s):     1,3,5,7</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>核数</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># grep CPU /proc/cpuinfo</span><br><span class="line">model name      : Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz</span><br><span class="line">model name      : Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz</span><br><span class="line">......</span><br><span class="line">model name      : Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz</span><br><span class="line">model name      : Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz</span><br><span class="line"># grep CPU /proc/cpuinfo | wc -l</span><br><span class="line">40</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="CPU架构"><a href="#CPU架构" class="headerlink" title="CPU架构"></a>CPU架构</h3><ul>
+<li>SMP架构：Symmetric Multi-Processor</li>
+</ul>
+<p>大多数早期的单处理机系统的设计为让每个 CPU 到每个内存位置都使用同一逻辑路径（一般是平行总线）。这样每次 CPU 访问任意位置的内存时与其他系统中的 CPU 对内存的访问消耗的时间是相同的。此类架构就是我们所说的同步多处理器（SMP）系统。SMP 适合 CPU 数较少的系统，但一旦 CPU 计数超过某一点（8 或者 16），要满足对内存的平等访问所需的平行 trace 数就会使用过多的板载资源，留给外设的空间就太少。</p>
+<p><img src="/images/linux/system-tuning/uma.png" alt="uma"></p>
+<ul>
+<li>MPP架构：Massive Parallel Processing</li>
+</ul>
+<p>和 NUMA 不同， MPP 提供了另外一种进行系统扩展的方式，它由多个 SMP 服务器通过一定的节点互联网络进行连接，协同工作，完成相同的任务，从用户的角度来看是一个服务器系统。其基本特征是由多个 SMP 服务器 ( 每个 SMP 服务器称节点 ) 通过节点互联网络连接而成，每个节点只访问自己的本地资源 ( 内存、存储等 ) ，是一种完全无共享 (Share Nothing) 结构，因而扩展能力最好，理论上其扩展无限制，目前的技术可实现 512 个节点互联，数千个 CPU 。目前业界对节点互联网络暂无标准，如 NCR 的 Bynet ， IBM 的 SPSwitch ，它们都采用了不同的内部实现机制。但节点互联网仅供 MPP 服务器内部使用，对用户而言是透明的。</p>
+<p>在 MPP 系统中，每个 SMP 节点也可以运行自己的操作系统、数据库等。但和 NUMA 不同的是，它不存在异地内存访问的问题。换言之，每个节点内的 CPU 不能访问另一个节点的内存。节点之间的信息交互是通过节点互联网络实现的，这个过程一般称为数据重分配 (Data Redistribution) 。</p>
+<p>但是 MPP 服务器需要一种复杂的机制来调度和平衡各个节点的负载和并行处理过程。目前一些基于 MPP 技术的服务器往往通过系统级软件 ( 如数据库 ) 来屏蔽这种复杂性。举例来说， NCR 的 Teradata 就是基于 MPP 技术的一个关系数据库软件，基于此数据库来开发应用时，不管后台服务器由多少个节点组成，开发人员所面对的都是同一个数据库系统，而不需要考虑如何调度其中某几个节点的负载。</p>
+<p>MPP (Massively Parallel Processing)，大规模并行处理系统，这样的系统是由许多松耦合的处理单元组成的，要注意的是这里指的是处理单元而不是处理器。每个单元内的CPU都有自己私有的资源，如总线，内存，硬盘等。在每个单元内都有操作系统和管理数据库的实例复本。这种结构最大的特点在于不共享资源。</p>
+<ul>
+<li>UNMA架构：Non-Uniform Memory Access</li>
+</ul>
+<p>不是为每个处理器包提供对等的内存访问，而是让每个包/插槽组合有一个或者多个专用内存区以便提供高速访问。每个插槽还有到另一个插槽的互联以便提供对其他插槽内存的低速访问。</p>
+<p>下图中 CPU0 访问左边的内存条大约需要三个时钟周期：一个周期是将地址发给内存控制器，一个周期是设置对该内存位置的访问，一个周期是读取或者写入到该位置。但 CPU1 可能需要 6 个时钟周期方可访问内存的同一位置，因为它位于不同的插槽，必须经过两个内存控制器：插槽 1 中的本地内存控制器和插槽 0  中的远程内存控制器。如果在那个位置出现竞争（即如果有一个以上 CPU 同时尝试访问同一位置），内存控制器需要对该内存进行随机且连续的访问，所以内存访问所需时间会较长。添加缓存一致性（保证本地 CPU 缓存包含同一内存位置的相同数据）会让此过程更为复杂。</p>
+<p><img src="/images/linux/system-tuning/numa.png" alt="numa"></p>
+<p><img src="/images/linux/system-tuning/numa-mac.png" alt="numa"></p>
+<ol>
+<li>当CPU有多颗时，物理CPU常见通讯方法有三种：</li>
+</ol>
+<ul>
+<li>FSB（传统的前端总线，常用于PC机）</li>
+<li>QPI(intel)</li>
+<li>HyperTransport(AMD)</li>
+</ul>
+<h2 id="Numa-Architecture"><a href="#Numa-Architecture" class="headerlink" title="Numa Architecture"></a>Numa Architecture</h2><h3 id="查看Numa-node"><a href="#查看Numa-node" class="headerlink" title="查看Numa node"></a>查看Numa node</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># numactl --hardware</span><br><span class="line">available: 2 nodes (0-1)     #当前机器有2个NUMA node，编号0、1</span><br><span class="line">node 0 cpus: 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30</span><br><span class="line">node 0 size: 32722 MB     #物理内存大小</span><br><span class="line">node 0 free: 2352 MB      #当前free内存大小</span><br><span class="line">node 1 cpus: 1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31</span><br><span class="line">node 1 size: 32768 MB</span><br><span class="line">node 1 free: 12314 MB</span><br><span class="line">node distances:           #node距离，可以简单认为Node内部访问及跨Node访问的成本。</span><br><span class="line">node   0   1 </span><br><span class="line">  0:  10  20              #由此可知跨node访问内存的成本是 内部访问的2倍。</span><br><span class="line">  1:  20  10</span><br></pre></td></tr></table></figure>
+<h3 id="查看node"><a href="#查看node" class="headerlink" title="查看node"></a>查看node</h3><ul>
+<li><p>node0包含的CPU</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx1 ~]# ls -l /sys/devices/system/node/node0/</span><br><span class="line">cpu0/    cpu12/   cpu16/   cpu2/    cpu22/   cpu26/   cpu30/   cpu6/    cpulist </span><br><span class="line">cpu10/   cpu14/   cpu18/   cpu20/   cpu24/   cpu28/   cpu4/    cpu8/    cpumap</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>/sys/devices/system/cpu</p>
+<p>  系统的 CPU 是如何互相连接的信息。</p>
+</li>
+<li><p>/sys/devices/system/node</p>
+<p>  系统中 NUMA 节点以及那些节点间相对距离的信息。</p>
+</li>
+</ul>
+<h3 id="查看cpu-cache"><a href="#查看cpu-cache" class="headerlink" title="查看cpu cache"></a>查看cpu cache</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# ls -l /sys/devices/system/cpu/cpu0/cache/</span><br><span class="line">total 0</span><br><span class="line">drwxr-xr-x 2 root root 0 Nov 10  2017 index0   # 1级数据cache</span><br><span class="line">drwxr-xr-x 2 root root 0 Nov  3  2017 index1   # 1级指令cache</span><br><span class="line">drwxr-xr-x 2 root root 0 Nov  3  2017 index2   # 2级cache</span><br><span class="line">drwxr-xr-x 2 root root 0 Nov 10  2017 index3   # 3级cache ,对应cpuinfo里的cache</span><br></pre></td></tr></table></figure>
+<p>目录里的文件是cache信息描述，以本机的cpu0/index0为例简单解释一下：</p>
+<table><br>    <tr><br>        <td>文件</td><br>        <td>内容</td><br>        <td>说明</td><br>   </tr><br>   <tr><br>        <td>type</td><br>        <td>Data</td><br>        <td>数据cache，如果查看index1就是Instruction</td><br>   </tr><br>   <tr><br>        <td>Level</td><br>        <td>1</td><br>        <td>L1</td><br>    </tr><br>    <tr><br>        <td>Size</td><br>        <td>32K</td><br>        <td>大小为32K</td><br>    </tr><br>    <tr><br>        <td>coherency_line_size</td><br>        <td>64</td><br>        <td rowspan="4">64<em>4</em>128=32K</td><br>    </tr><br>    <tr><br>        <td>physical_line_partition</td><br>        <td>1</td><br>    </tr><br>    <tr><br>        <td>ways_of_associativity</td><br>        <td>4</td><br>    </tr><br>    <tr><br>        <td>number_of_sets</td><br>        <td>128</td><br>    </tr><br>    <tr><br>        <td>shared_cpu_map</td><br>        <td>00000101</td><br>        <td>示这个cache被CPU0和CPU8 share</td><br>    </tr><br></table>
+
+<p>解释一下shared_cpu_map内容的格式：</p>
+<p>表面上看是2进制，其实是16进制表示，每个bit表示一个cpu，1个数字可以表示4个cpu<br>截取00000101的后4位，转换为2进制表示。</p>
+<table>
+<thead>
+<tr>
+<th>CPU id</th>
+<th>15</th>
+<th>14</th>
+<th>13</th>
+<th>12</th>
+<th>11</th>
+<th>10</th>
+<th>9</th>
+<th>8</th>
+<th>7</th>
+<th>6</th>
+<th>5</th>
+<th>4</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0×0101的2进制表示</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>0101表示cpu8和cpu0，即cpu0的L1 data cache是和cpu8共享的。</p>
+<p>再看一下index3 shared_cpu_map的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># cat /sys/devices/system/cpu/cpu0/cache/index3/shared_cpu_map</span><br><span class="line">00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000f0f</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>CPU id</th>
+<th>15</th>
+<th>14</th>
+<th>13</th>
+<th>12</th>
+<th>11</th>
+<th>10</th>
+<th>9</th>
+<th>8</th>
+<th>7</th>
+<th>6</th>
+<th>5</th>
+<th>4</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x0f0f的2进制表示</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>cpu0,1,2,3和cpu8,9,10,11共享L3 cache。</p>
+<h3 id="查看numa状态"><a href="#查看numa状态" class="headerlink" title="查看numa状态"></a>查看numa状态</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># numastat</span><br><span class="line">                           node0           node1</span><br><span class="line">numa_hit              1011487518       716368222</span><br><span class="line">numa_miss                      0       145365467</span><br><span class="line">numa_foreign           145365467               0</span><br><span class="line">interleave_hit             20673           20631</span><br><span class="line">local_node            1011487341       716343592</span><br><span class="line">other_node                   177       145390097</span><br></pre></td></tr></table></figure>
+<p>上述可知node 0的unma_miss过高，可考虑用numactl将进程和CPU绑定。详见CPU调优章节。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>numa_hit</td>
+<td>为这个节点成功的分配尝试数。</td>
+</tr>
+<tr>
+<td>numa_miss</td>
+<td>由于在目的节点中内存较低而尝试为这个节点分配到另一个节点的数目。每个 numa_miss 事件都在另一个节点中有对应的 numa_foreign 事件。</td>
+</tr>
+<tr>
+<td>numa_foreign</td>
+<td>最初要为这个节点但最后分配个另一个节点的分配数。每个 numa_foreign 事件都在另一个节点中有对应的 numa_miss 事件。</td>
+</tr>
+<tr>
+<td>interleave_hit</td>
+<td>成功分配给这个节点的尝试交错策略数。</td>
+</tr>
+<tr>
+<td>local_node</td>
+<td>这个节点中的进程成功在这个节点中分配内存的次数。</td>
+</tr>
+<tr>
+<td>other_node</td>
+<td>这个节点中的进程成功在另一个节点中分配内存的次数。</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx1 ~]# numactl --show</span><br><span class="line">policy: default</span><br><span class="line">preferred node: current</span><br><span class="line">physcpubind: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 </span><br><span class="line">cpubind: 0 1</span><br><span class="line">nodebind: 0 1</span><br><span class="line">membind: 0 1</span><br></pre></td></tr></table></figure>
+<h3 id="查看内存numa-node分布"><a href="#查看内存numa-node分布" class="headerlink" title="查看内存numa node分布"></a>查看内存numa node分布</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/&lt;pid&gt;/numa_maps</span><br><span class="line">cat /proc/$(pidof pname|cut -d &quot;&quot; -f1)/numa_maps</span><br></pre></td></tr></table></figure>
+<h3 id="查看线程run在哪个processor"><a href="#查看线程run在哪个processor" class="headerlink" title="查看线程run在哪个processor"></a>查看线程run在哪个processor</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">top -p $(pidof pname|sed -e &apos;s/ /,/g&apos;)</span><br><span class="line"></span><br><span class="line">在默认配置下不显示线程信息，需要进入Top后按“shift+H”，打开线程显示。</span><br><span class="line">另外，如果没有P列，还需要按“f”，按“j”，添加，这一列显示的数字就是这个线程上次run的processor id。</span><br></pre></td></tr></table></figure>
+<p><a href="https://blog.jcole.us/2010/09/28/mysql-swap-insanity-and-the-numa-architecture/" target="_blank" rel="noopener">https://blog.jcole.us/2010/09/28/mysql-swap-insanity-and-the-numa-architecture/</a><br><a href="https://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/" target="_blank" rel="noopener">https://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/</a></p>
+<h3 id="numad"><a href="#numad" class="headerlink" title="numad"></a>numad</h3><pre><code>numad 是一个自动 NUMA 亲和性管理守护进程，它监控系统中的 NUMA 拓扑以及资源使用以便动态提高 NUMA 资源分配和管理（以及系统性能）。
+
+numad 不会在进程只运行几分钟或者不会消耗很多资源时改进性能。
+
+有连续不可预测内存访问的系统，比如大型内存中的数据库也不大可能从 numad 使用中受益。
+</code></pre><h2 id="CPU-Cache"><a href="#CPU-Cache" class="headerlink" title="CPU Cache"></a>CPU Cache</h2><p>静态RAM（SRAM）集成度低（存储相同的数据，静态RAM的体积是动态RAM的6倍），价格高（同容量的静态RAM是动态RAM的四倍）；动态RAM（DRAM）。静态RAM缓存叫一级缓存，而把动态RAM叫二级缓存。</p>
+<h3 id="查看CPU-Cache"><a href="#查看CPU-Cache" class="headerlink" title="查看CPU Cache"></a>查看CPU Cache</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"># lscpu -p</span><br><span class="line"># The following is the parsable format, which can be fed to other</span><br><span class="line"># programs. Each different item in every column has an unique ID</span><br><span class="line"># starting from zero.</span><br><span class="line"># CPU,Core,Socket,Node,,L1d,L1i,L2,L3    # “Node”表示NUMA nodes</span><br><span class="line">0,0,0,0,,0,0,0,0</span><br><span class="line">1,1,1,1,,1,1,1,1</span><br><span class="line">2,2,0,0,,2,2,2,0</span><br><span class="line">3,3,1,1,,3,3,3,1</span><br><span class="line">4,4,0,0,,4,4,4,0</span><br><span class="line">5,5,1,1,,5,5,5,1</span><br><span class="line">6,6,0,0,,6,6,6,0</span><br><span class="line">7,7,1,1,,7,7,7,1</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# dmidecode -t 7</span><br><span class="line"># dmidecode 2.11</span><br><span class="line">SMBIOS 2.7 present.</span><br><span class="line"></span><br><span class="line">Handle 0x0700, DMI type 7, 19 bytes</span><br><span class="line">Cache Information</span><br><span class="line">        Socket Designation: Not Specified</span><br><span class="line">        Configuration: Enabled, Not Socketed, Level 1</span><br><span class="line">        Operational Mode: Write Through</span><br><span class="line">        Location: Internal</span><br><span class="line">        Installed Size: 128 kB         #一级缓存（32k * 4）</span><br><span class="line">        Maximum Size: 128 kB</span><br><span class="line">        Supported SRAM Types:</span><br><span class="line">                Unknown</span><br><span class="line">        Installed SRAM Type: Unknown</span><br><span class="line">        Speed: Unknown</span><br><span class="line">        Error Correction Type: Single-bit ECC</span><br><span class="line">        System Type: Data</span><br><span class="line">        Associativity: 8-way Set-associative</span><br><span class="line"></span><br><span class="line">Handle 0x0701, DMI type 7, 19 bytes</span><br><span class="line">Cache Information</span><br><span class="line">        Socket Designation: Not Specified</span><br><span class="line">        Configuration: Enabled, Not Socketed, Level 2</span><br><span class="line">        Operational Mode: Write Through</span><br><span class="line">        Location: Internal</span><br><span class="line">        Installed Size: 1024 kB       #二级缓存（256k * 4）</span><br><span class="line">        Maximum Size: 1024 kB</span><br><span class="line">        Supported SRAM Types:</span><br><span class="line">                Unknown</span><br><span class="line">        Installed SRAM Type: Unknown</span><br><span class="line">        Speed: Unknown</span><br><span class="line">        Error Correction Type: Single-bit ECC</span><br><span class="line">        System Type: Unified</span><br><span class="line">        Associativity: 8-way Set-associative</span><br><span class="line"></span><br><span class="line">Handle 0x0702, DMI type 7, 19 bytes</span><br><span class="line">Cache Information</span><br><span class="line">        Socket Designation: Not Specified</span><br><span class="line">        Configuration: Enabled, Not Socketed, Level 3</span><br><span class="line">        Operational Mode: Write Back</span><br><span class="line">        Location: Internal</span><br><span class="line">        Installed Size: 10240 kB    #与lscpu数值一样，说明4核共享三级缓存</span><br><span class="line">        Maximum Size: 10240 kB</span><br><span class="line">        Supported SRAM Types:</span><br><span class="line">                Unknown</span><br><span class="line">        Installed SRAM Type: Unknown</span><br><span class="line">        Speed: Unknown</span><br><span class="line">        Error Correction Type: Single-bit ECC</span><br><span class="line">        System Type: Unified</span><br><span class="line">        Associativity: 20-way Set-associative</span><br></pre></td></tr></table></figure>
+</code></pre><p>由上输出可得知该服务器的L1，L2是每个核心独享的，L3是共享的。</p>
+<h2 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h2><ul>
+<li><p>Memory size,max allowed</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"># free</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:      90743596   23288228   67455368          0     684452    2938648</span><br><span class="line">-/+ buffers/cache:   19665128   71078468</span><br><span class="line">Swap:     26214392          0   26214392</span><br><span class="line"></span><br><span class="line"># more /proc/meminfo </span><br><span class="line">MemTotal:       263860344 kB      # 已经减去了显卡占用的内存</span><br><span class="line">MemFree:        206924460 kB</span><br><span class="line">MemAvailable:   248609828 kB</span><br><span class="line">Buffers:          145604 kB</span><br><span class="line">Cached:         51754488 kB</span><br><span class="line">SwapCached:            0 kB</span><br><span class="line">Active:         45933660 kB</span><br><span class="line">Inactive:        7115240 kB</span><br><span class="line">Active(anon):    8130140 kB</span><br><span class="line">Inactive(anon):  4851368 kB</span><br><span class="line">Active(file):   37803520 kB</span><br><span class="line">Inactive(file):  2263872 kB</span><br><span class="line"></span><br><span class="line"># dmidecode -t 17</span><br><span class="line"># dmidecode 2.11</span><br><span class="line">SMBIOS 2.7 present.</span><br><span class="line"></span><br><span class="line">Handle 0x1100, DMI type 17, 34 bytes</span><br><span class="line">Memory Device</span><br><span class="line">        Array Handle: 0x1000</span><br><span class="line">        Error Information Handle: Not Provided</span><br><span class="line">        Total Width: 72 bits</span><br><span class="line">        Data Width: 64 bits</span><br><span class="line">        Size: 8192 MB                 # 内存大小</span><br><span class="line">        Form Factor: DIMM</span><br><span class="line">        Set: 1</span><br><span class="line">        Locator: DIMM_A1 </span><br><span class="line">        Bank Locator: Not Specified</span><br><span class="line">        Type: DDR3                   # DDR3代</span><br><span class="line">        Type Detail: Synchronous Registered (Buffered)</span><br><span class="line">        Speed: 1333 MHz              # 时钟频率</span><br><span class="line">        Manufacturer: 00CE04B300CE</span><br><span class="line">        Serial Number: 4400B1EA</span><br><span class="line">        Asset Tag: 01104611</span><br><span class="line">        Part Number: M393B1K70CH0-YH9  </span><br><span class="line">        Rank: 2</span><br><span class="line">        Configured Clock Speed: 1333 MHz</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>bandwidth and letency</p>
+<ul>
+<li>DDR2(2 bits),DDR3(4 bits),DDR4(8 bits)</li>
+<li>Bandwidth = Clock rate(时钟频率) <em> 4(DDR3) </em> 2(Double) * bits / 8（Double就是D，脉冲升频降会各取一次数据。带宽无需手动计算，内存卡会标识PC xxxxMB）</li>
+<li>Letency(wait time before read again,in ns)读取内存时，要等待的时间。动态内存需要电门不停的刷，所以读取数据需要时间。</li>
+<li>ECC(slower,safer)<ul>
+<li>Corrects single-bit errors</li>
+<li>Detects multiple-bit errors</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Method of memory accessing<ul>
+<li>UMA,NUMA</li>
+</ul>
+</li>
+</ul>
+<h2 id="Storage"><a href="#Storage" class="headerlink" title="Storage"></a>Storage</h2><ul>
+<li>Type of storage used<ul>
+<li>mechanical magnetic platters（机械磁盘）</li>
+<li>SSD devices（固态磁盘）</li>
+</ul>
+</li>
+<li>Hardware RAID Level<ul>
+<li>stripe depth（条带深度）</li>
+<li>stripe width（条带宽度）</li>
+<li>stripe size = stripe depth × stripe width</li>
+</ul>
+</li>
+<li>Direct-attached Storage（直连存储）<ul>
+<li>SATA,SAS,IDE</li>
+</ul>
+</li>
+<li>SCSI,Fibre Channel,ISCSI<ul>
+<li>Bandwidth,latency,multipath</li>
+</ul>
+</li>
+</ul>
+<h3 id="磁盘架构"><a href="#磁盘架构" class="headerlink" title="磁盘架构"></a>磁盘架构</h3><ul>
+<li>CLV</li>
+<li>CAV</li>
+<li><p>Zoned CAV</p>
+<p>  Tips</p>
+<p>  磁盘外圈速度比里圈速度快得多，所以操作系统默认将swap分区分配在里圈。</p>
+</li>
+</ul>
+<h3 id="磁盘速度"><a href="#磁盘速度" class="headerlink" title="磁盘速度"></a>磁盘速度</h3><p>一般都指Burst speed（顺序读写）速率。</p>
+<p><img src="/images/linux/system-tuning/storage-bandwidth.png" alt="storage-bandwidth"></p>
+<h3 id="磁盘类型"><a href="#磁盘类型" class="headerlink" title="磁盘类型"></a>磁盘类型</h3><ul>
+<li><p>IDE（并口）</p>
+<p>  IDE（Integrated Drive Electronics电子集成驱动器）的缩写，它的本意是指把控制器与盘体集成在一起的硬盘驱动器，是一种硬盘的传输接口，它有另一个名称叫做ATA（Advanced Technology Attachment），这两个名词都有厂商在用，指的是相同的东西。</p>
+<p>  IDE的规格后来有所进步，而推出了EIDE（Enhanced IDE）的规格名称，而这个规格同时又被称为Fast ATA。所不同的是Fast ATA是专指硬盘接口，而EIDE还制定了连接光盘等非硬盘产品的标准。而这个连接非硬盘类的IDE标准，又称为ATAPI接口。而之后再推出更快的接口，名称都只剩下ATA的字样，像是Ultra ATA、ATA/66、ATA/100等。</p>
+</li>
+<li><p>SATA（串口）</p>
+<p>  SATA（Serial ATA）口的硬盘又叫串口硬盘。2001年，由Intel、APT、Dell、IBM、希捷、迈拓这几大厂商组成的Serial ATA委员会正式确立了Serial ATA 1.0规范。</p>
+</li>
+<li><p>SCSI（小型计算机系统专用接口）</p>
+<p>  SCSI的英文全称为“Small Computer System Interface”（小型计算机系统接口），是同IDE（ATA）完全不同的接口，IDE接口是普通PC的标准接口，而SCSI并不是专门为硬盘设计的接口，是一种广泛应用于小型机上的高速数据传输技术。SCSI接口具有应用范围广、多任务、带宽大、CPU占用率低，以及热插拔等优点，但较高的价格使得它很难如IDE硬盘般普及，因此SCSI硬盘主要应用于中、高端服务器和高档工作站中。</p>
+</li>
+<li><p>SAS（就是串口的SCSI接口）</p>
+<p>  SAS(Serial Attached SCSI)即串行连接SCSI，是新一代的SCSI技术。和现在流行的Serial ATA(SATA)硬盘相同，都是采用串行技术以获得更高的传输速度，并通过缩短连结线改善内部空间等。SAS是并行SCSI接口之后开发出的全新接口。此接口的设计是为了改善存储系统的效能、可用性和扩充性，并且提供与SATA硬盘的兼容性。</p>
+</li>
+<li><p>FC（光纤通道）</p>
+<p>  光纤通道的英文拼写是Fiber Channel，和SCIS接口一样光纤通道最初也不是为硬盘设计开发的接口技术，是专门为网络系统设计的，但随着存储系统对速度的需求，才逐渐应用到硬盘系统中。光纤通道硬盘是为提高多硬盘存储系统的速度和灵活性才开发的，它的出现大大提高了多硬盘系统的通信速度。光纤通道的主要特性有：热插拔性、高速带宽、远程连接、连接设备数量大等。</p>
+</li>
+<li><p>SSD（固态硬盘）</p>
+<p>  固态硬盘（Solid State Disk或Solid State Drive），也称作电子硬盘或者固态电子盘，是由控制单元和固态存储单元（DRAM或FLASH芯片）组成的硬盘。固态硬盘的接口规范和定义、功能及使用方法上与普通硬盘的相同，在产品外形和尺寸上也与普通硬盘一致。由于固态硬盘没有普通硬盘的旋转介质，因而抗震性极佳。其芯片的工作温度范围很宽（-40~85℃）。</p>
+<p>  由于固态硬盘技术与传统硬盘技术不同，所以产生了不少新兴的存储器厂商。厂商只需购买NAND存储器，再配合适当的控制芯片，就可以制造固态硬盘了。新一代的固态硬盘普遍采用SATA-2接口。</p>
+</li>
+</ul>
+<h3 id="查看磁盘"><a href="#查看磁盘" class="headerlink" title="查看磁盘"></a>查看磁盘</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# fdisk -l /dev/sda </span><br><span class="line"></span><br><span class="line">Disk /dev/sda: 4000.8 GB, 4000787030016 bytes</span><br><span class="line">255 heads, 63 sectors/track, 486401 cylinders</span><br><span class="line">Units = cylinders of 16065 * 512 = 8225280 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# lspci</span><br><span class="line">......</span><br><span class="line">00:1f.0 ISA bridge: Intel Corporation C600/X79 series chipset LPC Controller (rev 05)</span><br><span class="line">00:1f.2 SATA controller: Intel Corporation C600/X79 series chipset 6-Port SATA AHCI Controller (rev 05)</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"># hdparm -I /dev/sda</span><br><span class="line"></span><br><span class="line">/dev/sda:</span><br><span class="line"></span><br><span class="line">ATA device, with non-removable media</span><br><span class="line">	Model Number:       ST1000NM0033-9ZM173       # 希捷1T</span><br><span class="line">	Serial Number:      Z1W3VQXC</span><br><span class="line">	Firmware Revision:  GA0A</span><br><span class="line">	Transport:          Serial, SATA Rev 3.0</span><br><span class="line">Standards:</span><br><span class="line">	Supported: 9 8 7 6 5 </span><br><span class="line">	Likely used: 9</span><br><span class="line">......</span><br><span class="line">[root@localhost ~]# dmesg |grep -C5 SATA</span><br></pre></td></tr></table></figure>
+</code></pre><h2 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h2><ul>
+<li>Electronic disk, no moving mechanical components</li>
+<li>No startup time</li>
+<li>Very low latency</li>
+<li>Potentially longer life time（尽可能延长寿命）<ul>
+<li>Wear leveling（磨损平衡）:闪存寿命是以P/E（完全擦写）次数来计算的，而WL就是确保闪存内每个块被写入的次数相等的一种机制。</li>
+</ul>
+</li>
+<li>Parameter<ul>
+<li>TBW<ul>
+<li>在 SSD 使用寿命结束之前指定工作量可以写入 SSD 的总数据量。</li>
+</ul>
+</li>
+<li>DWPD<ul>
+<li>在保固期内（或不同的数年时段内）每天可以写入硬盘用户存储容量的次数。</li>
+<li>DWPD = (固态硬盘的 TBW (TB) <em> P/E) / (365 天 </em> 年数 * 固态硬盘用户容量 (GB))</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="SSD-Types"><a href="#SSD-Types" class="headerlink" title="SSD Types"></a>SSD Types</h3><p>固态硬盘就是靠NAND Flash闪存芯片存储数据的，这点类似于我们常见的U盘。NAND Flash根据存储原理分为三种，SLC、MLC、TLC。</p>
+<ul>
+<li><p>SLC</p>
+<p>  Single-Level Cell ，即1bit/cell（1个存储器储存单元可存放1 bit的数据），速度快寿命长，价格超贵（约MLC 3倍以上的价格），约10万次擦写寿命</p>
+</li>
+<li><p>MLC</p>
+<p>  Multi-Level Cell，即2bit/cell，速度一般寿命一般，价格一般，约1000–3000次擦写寿命</p>
+</li>
+<li><p>TLC</p>
+<p>  Trinary-Level Cell，即3bit/cell，也有Flash厂家叫8LC，速度慢寿命短，价格便宜，约1000次擦写寿命。<br>  单位容量的存储器，可以存储更多的数据，所以TLC每百万字节生产成本是最低的。</p>
+</li>
+</ul>
+<p>实战：计算256G的TLC固态硬盘的使用寿命。</p>
+<p>假设该硬盘每天读取100G数据，256G*1000/356/100G=7.19（年） </p>
+<h3 id="SSD-Garbage-Collection"><a href="#SSD-Garbage-Collection" class="headerlink" title="SSD Garbage Collection"></a>SSD Garbage Collection</h3><p><img src="/images/linux/system-tuning/ssd-garbage-collection.png" alt="ssd-garbage-collection"></p>
+<ol>
+<li>上图SSD中有两个空的（erased）的Block X和Block Y, 每个Block有12个Pages;</li>
+<li>首先在Block X中写入4个Pages(A, B, C, D);</li>
+<li>接着再向Block X中写入新的4个pages(E, F, G, H), 同时写入PageA-D的更新数据（A’, B’, C’, D’), 这时PageA-D变为失效数据（invalid）;</li>
+<li>为了向PageA-D的位置写入数据，需要将E, F, G, H, A’, B’, C’, D’ 8个pages先搬到Block Y中, 之后再把Block X erase掉，这个过程就为GC。</li>
+</ol>
+<p>Nand flash 以Page为单位读写数据，而以Block为单位擦除数据。</p>
+<p>不过，由于GC的过程增加了数据的读写过程，势必会对SSD的performance的产生一定的影响，所以GC发生的条件与触发点很关键。</p>
+<p>GC触发条件大致有3点：</p>
+<ol>
+<li>Spare Block（）备用块太少</li>
+<li>Wear leveling</li>
+<li>处理ECC错误Block</li>
+</ol>
+<h3 id="SSD-Trim"><a href="#SSD-Trim" class="headerlink" title="SSD Trim"></a>SSD Trim</h3><p>操作系统删除数据时，Windows只会做个标记，说明这里已经没东西了，等到真正要写入数据时再来真正删除，并且做标记这个动作会保留在磁盘缓存中，等到磁盘空闲时再执行；Linux只会把inode table回收。</p>
+<p>所以对于非空的page，SSD在写入前必须先进行一次Erase，则写入过程为read-erase-modify-write:将整个block的内容读取到cache中，整个block从SSD中Erase,要覆写的page写入到cache的block中，将cache中更新的block写入闪存介质，这个现象称之为写入放大(write amplification)。</p>
+<p>为了解决这个问题，SSD开始支持TRIM，TRIM功能使操作系统得以通知SSD哪些页不再包含有效的数据。</p>
+<p>当Windows识别到SSD并确认SSD支持Trim后，在删除数据时，会不向硬盘通知删除指令，只使用Volume Bitmap来记住这里的数据已经删除。Volume Bitmap只是一个磁盘快照，其建立速度比直接读写硬盘去标记删除区域要快得多。这一步就已经省下一大笔时间了。然后再是写入数据的时候，由于NAND闪存保存数据是纯粹的数字形式，因此可以直接根据Volume Bitmap的情况，向快照中已删除的区块写入新的数据，而不用花时间去擦除原本的数据。</p>
+<ul>
+<li><p>Linux启用Trim</p>
+<ol>
+<li><p>确认 SSD 、操作系统、文件系统都支持 TRIM</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># discard_granularity 非 0 表示支持</span><br><span class="line"># cat /sys/block/sda/queue/discard_granularity</span><br><span class="line">0</span><br><span class="line"># cat /sys/block/nvme0n1/queue/discard_granularity</span><br><span class="line">512</span><br><span class="line"></span><br><span class="line"># DISC-GRAN (discard granularity) 和 DISC-MAX (discard max bytes) 列非 0 表示该 SSD 支持 TRIM 功能。</span><br><span class="line"># lsblk --discard</span><br><span class="line">NAME    DISC-ALN DISC-GRAN DISC-MAX DISC-ZERO</span><br><span class="line">sda            0        0B       0B         0</span><br><span class="line">├─sda1         0        0B       0B         0</span><br><span class="line">├─sda2         0        0B       0B         0</span><br><span class="line">└─sda3         0        0B       0B         0</span><br><span class="line">sr0            0        0B       0B         0</span><br><span class="line">nvme0n1      512      512B       2T         1</span><br><span class="line">nvme1n1      512      512B       2T         1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>开启</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对于 ext4 文件系统，可以在/etc/fstab里添加 discard 参数来启用 TRIM，添加前请确认你的 SSD 支持 TRIM。</span><br><span class="line"># vim /etc/fstab</span><br><span class="line">/dev/sdb1  /data1       ext4   defaults,noatime,discard   0  0</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>Windows启用Trim</p>
+</li>
+</ul>
+<p>注意：如果SSD组RAID0后，将失去Trim功能。</p>
+<h2 id="RAID"><a href="#RAID" class="headerlink" title="RAID"></a>RAID</h2><ul>
+<li><p>striping（条带化）</p>
+<p>  条带（strip）是把连续的数据分割成相同大小的数据块，把每段数据分别写入到阵列中的不同磁盘上的方法。简单的说，条带是一种将多个磁盘驱动器合并为一个卷的方法。 许多情况下，这是通过硬件控制器来完成的。</p>
+</li>
+<li><p>why striping?</p>
+<p>  首先介绍什么是磁盘冲突。当多个进程同时访问一个磁盘时，磁盘的访问次数（每秒的 I/O 操作，IOPS）和数据传输率（每秒传输的数据量，TPS）达到极限后，后面的进程就需要等待，这时就是所谓的磁盘冲突。</p>
+<p>  避免磁盘冲突是优化 I/O 性能的一个重要目标，而 I/O 性能的优化与其他资源（如CPU和内存）的优化有着很大的区别,I/O 优化最有效的手段是将 I/O 最大限度的进行平衡。</p>
+<p>  条带化技术就是一种自动的将 I/O 的负载均衡到多个物理磁盘上的技术，条带化技术就是将一块连续的数据分成很多小部分并把他们分别存储到不同磁盘上去。这就能使多个进程同时访问数据的多个不同部分而不会造成磁盘冲突，而且在需要对这种数据进行顺序访问的时候可以获得最大程度上的 I/O 并行能力，从而获得非常好的性能。</p>
+</li>
+<li><p>stripe depth(stripe unit)</p>
+<p>  条带深度：指的是条带的大小。这个参数指的是写在每块磁盘上的条带数据块的大小。RAID的数据块大小一般在2KB到512KB之间(或者更大)，其数值是 2 的次方，即2KB,4KB,8KB,16KB这样。</p>
+<p>  条带大小对性能的影响比条带宽度难以量化的多：</p>
+<ul>
+<li>减小条带大小: 由于条带大小减小了，则文件被分成了更多个，更小的数据块。这些数据块会被分散到更多的硬盘上存储，因此提高了传输的性能，但是由于要多次寻找不同的数据块，磁盘定位的性能就下降了。</li>
+<li><p>增加条带大小: 与减小条带大小相反，会降低传输性能，提高定位性能。</p>
+<p>根据上边的论述，我们会发现根据不同的应用类型，不同的性能需求，不同驱动器的不同特点(如SSD硬盘)，不存在一个普遍适用的”最佳条带大小”。所以这也是存储厂家，文件系统编写者允许我们自己定义条带大小的原因。</p>
+</li>
+</ul>
+</li>
+<li><p>stripe width</p>
+<p>  条带宽度：是指同时可以并发读或写的条带数量。这个数量等于RAID中的物理硬盘数量。例如一个经过条带化的，具有4块物理硬盘的阵列的条带宽度就是 4。增加条带宽度，可以增加阵列的读写性能。道理很明显，增加更多的硬盘，也就增加了可以同时并发读或写的条带数量。</p>
+</li>
+<li><p>stripe size</p>
+<p>  有时也称block size块大小、chunk size簇大小、stripe length条带长度、granularity粒度，是单块磁盘上的每次I/O的最小单位。</p>
+</li>
+</ul>
+<p>实战：<a href="http://www.mysqlab.net/blog/2011/12/raid10-stripe-size-for-mysql-innodb/" target="_blank" rel="noopener">Raid1+0 stripe size for MySQL InnoDB</a></p>
+<h2 id="Networking-Profile"><a href="#Networking-Profile" class="headerlink" title="Networking Profile"></a>Networking Profile</h2><h3 id="查看网卡"><a href="#查看网卡" class="headerlink" title="查看网卡"></a>查看网卡</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# lspci | grep Ethernet</span><br><span class="line">01:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">01:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">02:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line"># 示：四块博通千兆网卡</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# ethtool bond0</span><br><span class="line">Settings for bond0:</span><br><span class="line">        Supported ports: [ ]</span><br><span class="line">        Supported link modes:   Not reported</span><br><span class="line">        Supported pause frame use: No</span><br><span class="line">        Supports auto-negotiation: No</span><br><span class="line">        Advertised link modes:  Not reported</span><br><span class="line">        Advertised pause frame use: No</span><br><span class="line">        Advertised auto-negotiation: No</span><br><span class="line">        Speed: 1000Mb/s</span><br><span class="line">        Duplex: Full         # 当前工作在全双工模式</span><br><span class="line">        Port: Other</span><br><span class="line">        PHYAD: 0</span><br><span class="line">        Transceiver: internal</span><br><span class="line">        Auto-negotiation: off</span><br><span class="line">        Link detected: yes</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# ip a s bond0</span><br><span class="line">6: bond0: &lt;BROADCAST,MULTICAST,MASTER,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP </span><br><span class="line">    link/ether f8:bc:12:48:91:64 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet6 fe80::fabc:12ff:fe48:9164/64 scope link </span><br><span class="line">       valid_lft forever preferred_lft forever</span><br></pre></td></tr></table></figure>
+<h2 id="主板"><a href="#主板" class="headerlink" title="主板"></a>主板</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# dmidecode -t baseboard</span><br></pre></td></tr></table></figure>
+<h2 id="PCI设备"><a href="#PCI设备" class="headerlink" title="PCI设备"></a>PCI设备</h2><p>PCI是CPU和外围设备通信的高速传输总线。</p>
+<p><img src="/images/linux/system-tuning/pci-bandwidth.png" alt="pci-bandwidth"></p>
+<h3 id="查看pci设备"><a href="#查看pci设备" class="headerlink" title="查看pci设备"></a>查看pci设备</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# lspci            # pciutils软件包</span><br><span class="line">7f:08.0 System peripheral: Intel Corporation Xeon E5 v2/Core i7 QPI Link 0 (rev 04)</span><br><span class="line">......</span><br><span class="line">7f:0c.1 System peripheral: Intel Corporation Xeon E5 v2/Core i7 Unicast Registers (rev 04)</span><br><span class="line">......</span><br><span class="line">7f:16.2 System peripheral: Intel Corporation Xeon E5 v2/Core i7 Broadcast Registers (rev 04)</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# lspci -vt</span><br><span class="line">-+-[0000:7f]-+-08.0  Intel Corporation Xeon E5 v2/Core i7 QPI Link 0</span><br><span class="line"> |           +-09.0  Intel Corporation Xeon E5 v2/Core i7 QPI Link 1</span><br><span class="line">......</span><br><span class="line"> |           +-0f.0  Intel Corporation Xeon E5 v2/Core i7 Integrated Memory Controller 0 Target Address/Thermal Registers</span><br><span class="line">......</span><br><span class="line"> |           +-10.7  Intel Corporation Xeon E5 v2/Core i7 Integrated Memory Controller 1 Channel 0-3 ERROR Registers 3</span><br><span class="line"> |           +-13.0  Intel Corporation Xeon E5 v2/Core i7 R2PCIe</span><br><span class="line"> |           +-13.1  Intel Corporation Xeon E5 v2/Core i7 R2PCIe</span><br><span class="line"> |           +-13.4  Intel Corporation Xeon E5 v2/Core i7 QPI Ring Registers</span><br><span class="line"> |           +-13.5  Intel Corporation Xeon E5 v2/Core i7 QPI Ring Performance Ring Monitoring</span><br><span class="line"> |           +-16.0  Intel Corporation Xeon E5 v2/Core i7 System Address Decoder</span><br><span class="line"> |           +-16.1  Intel Corporation Xeon E5 v2/Core i7 Broadcast Registers</span><br><span class="line"> |           \-16.2  Intel Corporation Xeon E5 v2/Core i7 Broadcast Registers</span><br><span class="line"> \-[0000:00]-+-00.0  Intel Corporation Xeon E5 v2/Core i7 DMI2</span><br><span class="line">             +-01.0-[02]--+-00.0  Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">             |            \-00.1  Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">             +-01.1-[01]--+-00.0  Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">             |            \-00.1  Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe</span><br><span class="line">             +-02.0-[04]--</span><br><span class="line">             +-02.2-[03]----00.0  LSI Logic / Symbios Logic MegaRAID SAS 2008 [Falcon]</span><br><span class="line">             +-03.0-[05]--</span><br><span class="line">             +-03.2-[06]--</span><br><span class="line">             +-05.0  Intel Corporation Xeon E5 v2/Core i7 VTd/Memory Map/Misc</span><br><span class="line">             +-05.2  Intel Corporation Xeon E5 v2/Core i7 IIO RAS</span><br><span class="line">             +-11.0-[07]--</span><br><span class="line">             +-16.0  Intel Corporation C600/X79 series chipset MEI Controller #1</span><br><span class="line">             +-16.1  Intel Corporation C600/X79 series chipset MEI Controller #2</span><br><span class="line">             +-1a.0  Intel Corporation C600/X79 series chipset USB2 Enhanced Host Controller #2</span><br><span class="line">             +-1c.0-[08]--</span><br><span class="line">             +-1c.7-[09-0d]----00.0-[0a-0d]--+-00.0-[0b-0c]----00.0-[0c]----00.0  Matrox Electronics Systems Ltd. G200eR2</span><br><span class="line">             |                               \-01.0-[0d]--</span><br><span class="line">             +-1d.0  Intel Corporation C600/X79 series chipset USB2 Enhanced Host Controller #1</span><br><span class="line">             +-1e.0-[0e]--</span><br><span class="line">             +-1f.0  Intel Corporation C600/X79 series chipset LPC Controller</span><br><span class="line">             \-1f.2  Intel Corporation C600/X79 series chipset 6-Port SATA AHCI Controller</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# lspci -xxx -s 7f:13.5        # x越多，列出的信息越详细</span><br><span class="line">7f:13.5 Performance counters: Intel Corporation Xeon E5 v2/Core i7 QPI Ring Performance Ring Monitoring (rev 04)</span><br><span class="line">00: 86 80 36 0e 00 00 00 00 04 00 01 11 10 00 80 00</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# lspci -vv -s 7f:13.5         # v越多，列出的信息越详细</span><br><span class="line">7f:13.5 Performance counters: Intel Corporation Xeon E5 v2/Core i7 QPI Ring Performance Ring Monitoring (rev 04)</span><br><span class="line">        Subsystem: Dell Device 048c</span><br><span class="line">        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-</span><br><span class="line">        Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast &gt;TAbort- &lt;TAbort- &lt;MAbort- &gt;SERR- &lt;PERR- INTx-</span><br></pre></td></tr></table></figure>
+<h3 id="USB设备"><a href="#USB设备" class="headerlink" title="USB设备"></a>USB设备</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# lsusb           # usbutils包</span><br><span class="line">Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub</span><br><span class="line">Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub</span><br><span class="line">Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub</span><br><span class="line">Bus 002 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub</span><br><span class="line">Bus 001 Device 003: ID 0624:0248 Avocent Corp. Virtual Hub</span><br><span class="line">Bus 001 Device 004: ID 0624:0249 Avocent Corp. Virtual Keyboard/Mouse</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# lsusb -vt</span><br><span class="line">Bus#  2</span><br><span class="line">`-Dev#   1 Vendor 0x1d6b Product 0x0002</span><br><span class="line">  `-Dev#   2 Vendor 0x8087 Product 0x0024</span><br><span class="line">Bus#  1</span><br><span class="line">`-Dev#   1 Vendor 0x1d6b Product 0x0002</span><br><span class="line">  `-Dev#   2 Vendor 0x8087 Product 0x0024</span><br><span class="line">    `-Dev#   3 Vendor 0x0624 Product 0x0248</span><br><span class="line">      `-Dev#   4 Vendor 0x0624 Product 0x0249</span><br></pre></td></tr></table></figure>
+<h3 id="查看内核产生的硬件日志"><a href="#查看内核产生的硬件日志" class="headerlink" title="查看内核产生的硬件日志"></a>查看内核产生的硬件日志</h3><ul>
+<li>/var/log/dmesg<br> 系统启动，一次性将启动时关于硬件的kernel日志写入该文件。</li>
+<li>dmesg命名<br>  实时记录kernel日志，譬如插入USB设备，可使用dmesg命令查看。</li>
+</ul>
+<h3 id="获取硬件命令汇总"><a href="#获取硬件命令汇总" class="headerlink" title="获取硬件命令汇总"></a>获取硬件命令汇总</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">1. CPU型号</span><br><span class="line">dmidecode -t 4| awk &apos;/Version/ &amp;&amp; /CPU/&apos;|uniq</span><br><span class="line">2. CPU核数</span><br><span class="line">grep -c &apos;processor&apos; /proc/cpuinfo</span><br><span class="line">sysctl kern.smp.cpus|awk &apos;&#123;print $2&#125;&apos;</span><br><span class="line">3.内存大小</span><br><span class="line">free -m|awk &apos;/Mem/&#123;printf(&quot;%d\n&quot;, $2/1024+0.5)&#125;&apos;</span><br><span class="line">sysctl hw.physmem|awk &apos;&#123;printf (&quot;%d\n&quot;, $2/1073741824+0.5)&#125;&apos;</span><br><span class="line">4.硬盘总大小</span><br><span class="line">fdisk -l|awk &apos;/Disk \/dev\//&#123;sum +=$3&#125;END&#123;printf(&quot;%d\n&quot;, sum+0.5)&#125;&apos;</span><br><span class="line">sysctl kern.geom.conftxt|grep -Eo &apos;DISK \w+ \w+&apos;|awk &apos;&#123;sum +=$3&#125;END&#123;printf(&quot;%d\n&quot;, sum/1000000000+0.5)&#125;&apos; </span><br><span class="line">df -Pm | awk &apos;/^\/dev\//&#123;sum +=$2&#125;END&#123;printf(&quot;%d\n&quot;, sum/1024+0.5)&#125;&apos;</span><br><span class="line">5.主板型号</span><br><span class="line">dmidecode -t 1| awk &apos;/Product Name/&apos;</span><br><span class="line">6.取主板Serial</span><br><span class="line">dmidecode -t 1|awk &apos;/Serial/&apos;</span><br><span class="line"></span><br><span class="line">一句话脚本：</span><br><span class="line">dmidecode -t 4| awk &apos;/Version:/&apos;|tail -n1</span><br><span class="line"></span><br><span class="line">if [ `uname` == Linux ];then grep -c &apos;processor&apos; /proc/cpuinfo;else sysctl kern.smp.cpus|awk &apos;&#123;print $2&#125;&apos;;fi</span><br><span class="line"></span><br><span class="line">if [ `uname` == Linux ];then free -m|awk &apos;/Mem/&#123;printf(&quot;%d\n&quot;, $2/1000+0.5)&#125;&apos;;else sysctl hw.physmem|awk &apos;&#123;printf (&quot;%d\n&quot;, $2/1073741824+0.5)&#125;&apos;;fi</span><br><span class="line"></span><br><span class="line">if [ `uname` == Linux ];then fdisk -l|awk &apos;/Disk \/dev\//&#123;sum +=$3&#125;END&#123;printf(&quot;%d\n&quot;, sum+0.5)&#125;&apos;;else sysctl kern.geom.conftxt|egrep -o &apos;DISK \w+ \w+&apos;|awk &apos;&#123;sum +=$3&#125;END&#123;printf(&quot;%d\n&quot;, sum/1000000000+0.5)&#125;&apos;;fi</span><br><span class="line"></span><br><span class="line">dmidecode -t 1| awk &apos;/Product Name/&apos;</span><br></pre></td></tr></table></figure>
+<h1 id="Understand-Software"><a href="#Understand-Software" class="headerlink" title="Understand Software"></a>Understand Software</h1><h2 id="Stoarge"><a href="#Stoarge" class="headerlink" title="Stoarge"></a>Stoarge</h2><p>Storage is very slow compare to memory. Linux has two way to compensate the issue.</p>
+<ul>
+<li>Caching<ul>
+<li>Read from memory, write to memory</li>
+<li>Read can be cached, write can be deferred</li>
+</ul>
+</li>
+<li>I/O Schedulers<ul>
+<li>Kernel attempt to recorder, coalesce I/O requests（临近扇区，合并读请求）</li>
+<li>Minimize relocating magnetic head（最小化磁头的动作，重新定位）</li>
+</ul>
+</li>
+</ul>
+<h2 id="I-O-Schedulers"><a href="#I-O-Schedulers" class="headerlink" title="I/O Schedulers"></a>I/O Schedulers</h2><p>参考：<a href="http://www.cnblogs.com/cobbliu/p/5389556.html" target="_blank" rel="noopener">http://www.cnblogs.com/cobbliu/p/5389556.html</a></p>
+<ul>
+<li><p>cfq(Complete Fair Queuing)</p>
+<ul>
+<li><p>default schduler after kernel 2.6.18</p>
+<p>它试图为竞争块设备使用权的所有进程分配一个请求队列和一个时间片，在调度器分配给进程的时间片内，进程可以将其读写请求发送给底层块设备，当进程的时间片消耗完，进程的请求队列将被挂起，等待调度。 </p>
+<p>每个进程的时间片和每个进程的队列长度取决于进程的IO优先级，每个进程都会有一个IO优先级，CFQ调度器将会将其作为考虑的因素之一，来确定该进程的请求队列何时可以获取块设备的使用权。IO优先级从高到低可以分为三大类:RT(real time),BE(best try),IDLE(idle),其中RT和BE又可以再划分为8个子优先级。</p>
+<p>实际上，我们已经知道CFQ调度器的公平是针对于进程而言的，而只有同步请求(read或syn write)才是针对进程而存在的，他们会放入进程自身的请求队列，而所有同优先级的异步请求，无论来自于哪个进程，都会被放入公共的队列，异步请求的队列总共有8(RT)+8(BE)+1(IDLE)=17个。</p>
+</li>
+<li><p>IO Priority</p>
+<ul>
+<li>Class 1(real time): first-access to disk, can starve（饿死） other classes<ul>
+<li>0-7: The scheduling class data</li>
+</ul>
+</li>
+<li>Class 2(best-effort): round-robin access, the default<ul>
+<li>0-7: The scheduling class data</li>
+</ul>
+</li>
+<li>Class 3(idle): receives disk I/O only if no other requests in queue</li>
+</ul>
+<p><strong>ionice命令可调节进程的IO优先级</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ionice -n0 -c1 -p pid</span><br><span class="line">ionice -n7 -c2 -p pid</span><br><span class="line">ionice -c3 -p pid        # 我不入地狱，谁入地狱</span><br><span class="line">ionice -c 2 -n 0 bash  # Runs ’bash’ as a best-effort program with highest priority.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>deadline</p>
+<ul>
+<li>with predictable service time（可预见的服务时间）</li>
+<li><p>for virtualization host</p>
+<p>Deadline算法中引入了四个队列，这四个队列可以分为两类，每一类都由读和写两类队列组成，一类队列用来对请求按起始扇区序号进行排序，通过红黑树来组织，称为sort_list；另一类对请求按它们的生成时间进行排序，由链表来组织，称为fifo_list。每当确定了一个传输方向(读或写)，那么将会从相应的sort_list中将一批连续请求dispatch到requst_queue的请求队列里，具体的数目由fifo_batch来确定。只有下面三种情况才会导致一次批量传输的结束：</p>
+</li>
+</ul>
+<ol>
+<li>对应的sort_list中已经没有请求了</li>
+<li>下一个请求的扇区不满足递增的要求</li>
+<li><p>上一个请求已经是批量传输的最后一个请求了</p>
+<p>所有的请求在生成时都会被赋上一个期限值(根据jiffies)，并按期限值排序在fifo_list中，读请求的期限时长默认为为500ms，写请求的期限时长默认为5s，可以看出内核对读请求是十分偏心的，其实不仅如此，在deadline调度器中，还定义了一个starved和writes_starved，writes_starved默认为2，可以理解为写请求的饥饿线，内核总是优先处理读请求，starved表明当前处理的读请求批数，只有starved超过了writes_starved后，才会去考虑写请求。因此，假如一个写请求的期限已经超过，该请求也不一定会被立刻响应，因为读请求的batch还没处理完，即使处理完，也必须等到starved超过writes_starved才有机会被响应。为什么内核会偏袒读请求？这是从整体性能上进行考虑的。读请求和应用程序的关系是同步的，因为应用程序要等待读取的内容完毕，才能进行下一步工作，因此读请求会阻塞进程，而写请求则不一样，应用程序发出写请求后，内存的内容何时写入块设备对程序的影响并不大，所以调度器会优先处理读请求。</p>
+<p>默认情况下，读请求的超时时间是500ms，写请求的超时时间是5s。</p>
+<p><a href="http://www.ibm.com/support/knowledgecenter/api/content/linuxonibm/liaat/liaatbestpractices_pdf.pdf" target="_blank" rel="noopener">这篇文章</a>说在一些多线程应用下，Deadline算法比CFQ算法好。<a href="https://www.percona.com/blog/2009/01/30/linux-schedulers-in-tpcc-like-benchmark/" target="_blank" rel="noopener">这篇文章</a>说在一些数据库应用下，Deadline算法比CFQ算法好。</p>
+</li>
+</ol>
+</li>
+<li><p>anticipatory(AS)</p>
+<ul>
+<li>wait for a while after read request</li>
+<li><p>for sequential read workloads（大量顺序读的）</p>
+<p>Anticipatory算法从Linux 2.6.33版本后，就被移除了，因为CFQ通过配置也能达到Anticipatory算法的效果。</p>
+</li>
+</ul>
+</li>
+<li><p>noop(No Operation)</p>
+<ul>
+<li>quick to response, low CPU overhead</li>
+<li><p>for SSD,virtualization guests（宿主机使用了deadline，则虚拟机使用noop，因为真正写盘操作是主机完成）</p>
+<p>Noop调度算法也叫作电梯调度算法，它将IO请求放入到一个FIFO队列中，然后逐个执行这些IO请求，当然对于一些在磁盘上连续的IO请求，Noop算法会适当做一些合并。这个调度算法特别适合那些不希望调度器重新组织IO请求顺序的应用。</p>
+<p>这种调度算法在以下场景中优势比较明显：</p>
+</li>
+</ul>
+<ol>
+<li><p>在IO调度器下方有更加智能的IO调度设备。如果您的Block Device Drivers是Raid，或者SAN，NAS等存储设备，这些设备会更好地组织IO请求，不用IO调度器去做额外的调度工作；</p>
+<ol start="2">
+<li><p>上层的应用程序比IO调度器更懂底层设备。或者说上层应用程序到达IO调度器的IO请求已经是它经过精心优化的，那么IO调度器就不需要画蛇添足，只需要按序执行上层传达下来的IO请求即可。</p>
+</li>
+<li><p>对于一些非旋转磁头氏的存储设备，使用Noop的效果更好。因为对于旋转磁头式的磁盘来说，IO调度器的请求重组要花费一定的CPU时间，但是对于SSD磁盘来说，这些重组IO请求的CPU时间可以节省下来，因为SSD提供了更智能的请求调度算法，不需要内核去画蛇添足。</p>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><ul>
+<li><p>/sys/block/\&lt;device>/queue/nr_requests</p>
+<p>  磁盘请求队列长度（一次性交给磁盘的请求数量）。增大它会牺牲更多内存。 </p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># cat /sys/block/sda/queue/nr_requests </span><br><span class="line">128</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>/sys/block/\&lt;device>/queue/read_ahead_kb</p>
+<p>  预先读数据块大小，对于大量的连续读业务，可以增大它。</p>
+</li>
+</ul>
+<h3 id="I-O-Scheduler-Manage"><a href="#I-O-Scheduler-Manage" class="headerlink" title="I/O Scheduler Manage"></a>I/O Scheduler Manage</h3><ul>
+<li><p>/sys/block/\&lt;device>/queue/scheduler<br>  切换I/O调度算法。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># cat /sys/block/sda/queue/scheduler </span><br><span class="line">noop anticipatory deadline [cfq]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>每种调度算法的可调参数</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 该目录会根据不同Schduler而变化</span><br><span class="line"># cd /sys/block/sda/queue/iosched/</span><br><span class="line">[root@kvm-2 iosched]# ls</span><br><span class="line">back_seek_max      fifo_expire_async  group_idle       low_latency  slice_async     slice_idle</span><br><span class="line">back_seek_penalty  fifo_expire_sync   group_isolation  quantum      slice_async_rq  slice_sync</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>CFQ</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/sys/block/&lt;device&gt;/queue/iosched/slice_idle </span><br><span class="line">当一个进程的队列被分配到时间片却没有 IO 请求时，调度器在轮询至下一个队列之前的等待时间，以提升 IO 的局部性，对于 SSD 设备，可以将这个值设为 0。</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/quantum </span><br><span class="line">一个进程的队列每次被处理 IO 请求的最大数量，默认为 4，RHEL6 为 8，增大这个值可以提升并行处理 IO 的性能，但可能会造成某些 IO 延迟问题。</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/slice_async_rq </span><br><span class="line">一次处理写请求的最大数</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/low_latency </span><br><span class="line">如果IO延迟的问题很严重，将这个值设为 1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Deadline</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/sys/block/&lt;device&gt;/queue/iosched/writes_starved </span><br><span class="line">进行一个写操作之前，允许进行多少次读操作</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/read_expire </span><br><span class="line">读请求的过期时间，默认为 5ms</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/write_expire </span><br><span class="line">写请求的过期时间，默认为 500ms</span><br><span class="line"></span><br><span class="line">/sys/block/sda/queue/iosched/front_merges </span><br><span class="line">是否进行前合并</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Anticipatory</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/sys/block/&lt;device&gt;/queue/iosched/antic_expire </span><br><span class="line">预测等待时长，默认为 6ms</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/&#123;write_expire,read_expire&#125; </span><br><span class="line">读写请求的超时时长</span><br><span class="line"></span><br><span class="line">/sys/block/&lt;device&gt;/queue/iosched/&#123;write_batch_expire,read_batch_expire&#125; </span><br><span class="line">读写的批量处理时长</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Tuning-Theory"><a href="#Tuning-Theory" class="headerlink" title="Tuning Theory"></a>Tuning Theory</h3><ul>
+<li>L: Queue length: average number of requests waiting in the system</li>
+<li>A: Arrival rate: the rate at which requests enter a system</li>
+<li>W: Wait time: average time to satisfy a request<ul>
+<li>also known as wall clock,latency,response time, or residence time</li>
+</ul>
+</li>
+</ul>
+<p>L = A * W</p>
+<h3 id="Queue-Length"><a href="#Queue-Length" class="headerlink" title="Queue Length"></a>Queue Length</h3><ul>
+<li>Requests are buffered in memory</li>
+<li>L may be read-write tunable or a read-only measurement</li>
+</ul>
+<h3 id="Wait-Time"><a href="#Wait-Time" class="headerlink" title="Wait Time"></a>Wait Time</h3><ul>
+<li>Includes<ul>
+<li>Queue time（排队时间）</li>
+<li>Service time（服务时间）</li>
+</ul>
+</li>
+<li>Tactics（策略）<ul>
+<li>Reduce queue time</li>
+<li>Reduce service time</li>
+</ul>
+</li>
+</ul>
+<p>L = A <em> W = A </em> (T<sub>q</sub> + T<sub>s</sub>)</p>
+<h3 id="Service-Time"><a href="#Service-Time" class="headerlink" title="Service Time"></a>Service Time</h3><ul>
+<li>Includes<ul>
+<li>Sysem time: time in kernel mode</li>
+<li>User time: time in user mode(doing useful work)</li>
+</ul>
+</li>
+<li>Tactics<ul>
+<li>Reduce system time(blocks user mode operations)</li>
+<li>spend as much time as needed in user mode</li>
+</ul>
+</li>
+</ul>
+<p>L = A <em> W = A </em> (Q + S) = A * (T<sub>q</sub> + (T<sub>sys</sub> + T<sub>user</sub>))</p>
+<h3 id="Summary-of-Queue-Theory"><a href="#Summary-of-Queue-Theory" class="headerlink" title="Summary of Queue Theory"></a>Summary of Queue Theory</h3><ul>
+<li>L: Queue length</li>
+<li>A: Arrival rate(requests/second)</li>
+<li>W: Wait time(latency, time to satisfy a request)</li>
+<li>Q: Queue time</li>
+<li>S: Service time(includes system time, user time)</li>
+<li><p>C: Complete rate(requests/second)</p>
+<ul>
+<li>Steady state: A = C</li>
+<li>L = A <em> W = A </em> (Q + S) = A * (T<sub>q</sub> + (T<sub>sys</sub> + T<sub>user</sub>))</li>
+</ul>
+</li>
+</ul>
+<h3 id="Summary-of-strategies"><a href="#Summary-of-strategies" class="headerlink" title="Summary of strategies"></a>Summary of strategies</h3><ul>
+<li>Tune L<ul>
+<li>Constrain queue length</li>
+<li>Sort the queue to prefer reads</li>
+</ul>
+</li>
+<li>Tune A or C<ul>
+<li>Reduce visit count by distributing across multiple resources(SMP,RAID)</li>
+<li>Defer resource visits until think time(lazy write)</li>
+<li>Improve throughput for resource(more efficient protocol, less overhead)</li>
+</ul>
+</li>
+<li>Tune W<ul>
+<li>Use expiration time for requests</li>
+<li>use resources with smaller service time(in-memory cache vs disk)</li>
+</ul>
+</li>
+</ul>
+<h2 id="Kernel-Module"><a href="#Kernel-Module" class="headerlink" title="Kernel Module"></a>Kernel Module</h2><h3 id="Module-commands"><a href="#Module-commands" class="headerlink" title="Module commands"></a>Module commands</h3><ul>
+<li><p>lsmod</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># lsmod </span><br><span class="line">Module                  Size  Used by</span><br><span class="line">tcp_diag                1041  0 </span><br><span class="line">inet_diag               8735  1 tcp_diag    # 表示该模块被tcp_diag依赖，使用次数为1</span><br><span class="line">ip6table_filter         2889  0 </span><br><span class="line">ip6_tables             18732  1 ip6table_filter</span><br><span class="line">ebtable_nat             2009  0 </span><br><span class="line">ebtables               18135  1 ebtable_nat</span><br><span class="line">ipt_MASQUERADE          2466  3 </span><br><span class="line">iptable_nat             6158  1 </span><br><span class="line">nf_nat                 22759  2 ipt_MASQUERADE,iptable_nat</span><br><span class="line">nf_conntrack_ipv4       9506  4 iptable_nat,nf_nat</span><br><span class="line">nf_defrag_ipv4          1483  1 nf_conntrack_ipv4</span><br><span class="line">xt_state                1492  1 </span><br><span class="line">nf_conntrack           79758  5 ipt_MASQUERADE,iptable_nat,nf_nat,nf_conntrack_ipv4,xt_state</span><br><span class="line">ipt_REJECT              2351  2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>/lib/modules/\&lt;kernel-release>/kernel/</p>
+<p>  内核模块所在目录。</p>
+</li>
+<li><p>modinfo [ modulename… ]</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># modinfo sx8</span><br><span class="line">filename:       /lib/modules/2.6.32-431.el6.x86_64/kernel/drivers/block/sx8.ko</span><br><span class="line">version:        1.0</span><br><span class="line">description:    Promise SATA SX8 block driver</span><br><span class="line">license:        GPL</span><br><span class="line">author:         Jeff Garzik</span><br><span class="line">srcversion:     4772099AB984FE59198263E</span><br><span class="line">alias:          pci:v0000105Ad00008002sv*sd*bc*sc*i*</span><br><span class="line">alias:          pci:v0000105Ad00008000sv*sd*bc*sc*i*</span><br><span class="line">depends:        </span><br><span class="line">vermagic:       2.6.32-431.el6.x86_64 SMP mod_unload modversions </span><br><span class="line">parm:           max_queue:Maximum number of queued commands. (min==1, max==30, safe==1) (int)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>modprobe [ modulename… ]</p>
+</li>
+<li>rmmod [ modulename… ]</li>
+</ul>
+<h3 id="Modules-parameters"><a href="#Modules-parameters" class="headerlink" title="Modules parameters"></a>Modules parameters</h3><ul>
+<li><p>查看某模块有哪些参数可调整</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># modinfo -p usb_storage</span><br><span class="line">quirks:supplemental list of device IDs and their quirks</span><br><span class="line">delay_use:seconds to delay before using a new device</span><br><span class="line">swi_tru_install:TRU-Install mode (1=Full Logic (def), 2=Force CD-Rom, 3=Force Modem)</span><br><span class="line">option_zero_cd:ZeroCD mode (1=Force Modem (default), 2=Allow CD-Rom</span><br><span class="line"></span><br><span class="line"># modinfo -p sx8</span><br><span class="line">max_queue:Maximum number of queued commands. (min==1, max==30, safe==1)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义参数</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># cat /etc/modprobe.d/my.conf </span><br><span class="line">options usb_storage delay_use=3</span><br><span class="line">options st buffer_kbs=128</span><br><span class="line">options sx8 max_queue=10</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用modprobe命令重新加载这些模块，自定义的参数就会生效</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># modprobe usb_storage</span><br><span class="line"># modprobe st</span><br><span class="line"># modprobe sx8</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Check runtime module parameters</p>
+<ul>
+<li>/sys/module/<modulename>/parameters/<pname></pname></modulename></li>
+</ul>
+</li>
+<li><p>Automatically loading modules</p>
+<ul>
+<li>/etc/sysconfig/modules/my.modules</li>
+<li><p>Linux init脚本会执行以上目录下modules结尾的文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modprobe usb_storage|st|sx8</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Tuned"><a href="#Tuned" class="headerlink" title="Tuned"></a>Tuned</h2><ul>
+<li>Tune a system on the fly as needed</li>
+<li>Based on tuning profiles<ul>
+<li>max power saving</li>
+<li>max disk performance</li>
+<li>self made profile allowed（允许自定义tune方案）</li>
+<li>profile can even has monitoring program to run（还支持运行监控程序）</li>
+</ul>
+</li>
+<li>SysV service<ul>
+<li>tuned</li>
+<li>ktune</li>
+</ul>
+</li>
+<li>Can be used with crond to switch between profiles<ul>
+<li>0 7 <em> </em> * 1-5 /usr/bin/tuned-adm profile throughput-performance</li>
+<li>0 20 <em> </em> * 1-5 /usr/bin/tuned-adm profile server-powersave</li>
+</ul>
+</li>
+</ul>
+<h3 id="Use-Tuned"><a href="#Use-Tuned" class="headerlink" title="Use Tuned"></a>Use Tuned</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@cmdb-192-168-21-241 ~]# cat /etc/redhat-release </span><br><span class="line">CentOS Linux release 7.2.1511 (Core) </span><br><span class="line"></span><br><span class="line"># tuned-adm active</span><br><span class="line">Current active profile: virtual-guest</span><br><span class="line"></span><br><span class="line"># tuned-adm list</span><br><span class="line">Available profiles:</span><br><span class="line">- balanced                    - General non-specialized tuned profile</span><br><span class="line">- desktop                     - Optimize for the desktop use-case</span><br><span class="line">- latency-performance         - Optimize for deterministic performance at the cost of increased power consumption</span><br><span class="line">- network-latency             - Optimize for deterministic performance at the cost of increased power consumption, focused on low latency network performance</span><br><span class="line">- network-throughput          - Optimize for streaming network throughput, generally only necessary on older CPUs or 40G+ networks</span><br><span class="line">- powersave                   - Optimize for low power consumption</span><br><span class="line">- throughput-performance      - Broadly applicable tuning that provides excellent performance across a variety of common server workloads</span><br><span class="line">- virtual-guest               - Optimize for running inside a virtual guest</span><br><span class="line">- virtual-host                - Optimize for running KVM guests</span><br><span class="line">Current active profile: virtual-guest</span><br><span class="line"></span><br><span class="line"># tuned-adm profile powersave</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>latency-performance</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># grep -vE &apos;^#|^$&apos; /usr/lib/tuned/latency-performance/tuned.conf </span><br><span class="line">[main]</span><br><span class="line">summary=Optimize for deterministic performance at the cost of increased power consumption</span><br><span class="line">[cpu]</span><br><span class="line">force_latency=1</span><br><span class="line">governor=performance</span><br><span class="line">energy_perf_bias=performance</span><br><span class="line">min_perf_pct=100</span><br><span class="line">[sysctl]</span><br><span class="line">kernel.sched_min_granularity_ns=10000000</span><br><span class="line">vm.dirty_ratio=10</span><br><span class="line">vm.dirty_background_ratio=3</span><br><span class="line">vm.swappiness=10</span><br><span class="line">kernel.sched_migration_cost_ns=5000000</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>throughput-performance</p>
+</li>
+</ul>
+<h3 id="Custom-Tuning-Profiles"><a href="#Custom-Tuning-Profiles" class="headerlink" title="Custom Tuning Profiles"></a>Custom Tuning Profiles</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># cd /usr/lib/tuned/</span><br><span class="line"># mkdir test-performance</span><br><span class="line"></span><br><span class="line"># vim test-performance/tuned.conf</span><br><span class="line">[main]</span><br><span class="line">include=latency-performance</span><br><span class="line">summary=Test profile that uses settings for latency-performance tuning profile</span><br><span class="line"></span><br><span class="line"># tuned-adm list</span><br><span class="line">......</span><br><span class="line">- test-performance            - Test profile that uses settings for latency-performance tuning profile</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<h2 id="CPU-Tuning"><a href="#CPU-Tuning" class="headerlink" title="CPU Tuning"></a>CPU Tuning</h2><h3 id="Interrupt-and-IRQ"><a href="#Interrupt-and-IRQ" class="headerlink" title="Interrupt and IRQ"></a>Interrupt and IRQ</h3><p>中断请求（IRQ）是用于服务的请求，在硬件层发出。可使用专用硬件线路或者跨硬件总线的信息数据包（消息信号中断，MSI ）发出中断。启用中断后，接收 IRQ 后会提示切换到中断上下文。</p>
+<p>CPU绑定后，它仍然要服务于中断。应该将中断绑定至那些非隔离的CPU上，从而避免那些隔离的CPU处理中断程序；</p>
+<p>/proc/interrupts文件列出每个I/O 设备中每个 CPU 的中断数，每个 CPU 核处理的中断数，中断类型，以及用逗号分开的注册为接收中断的驱动程序列表。（详情请参考 proc(5) man page：man 5 proc）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# cat /proc/interrupts </span><br><span class="line">           CPU0       CPU1       </span><br><span class="line">  0:      14678          0   IO-APIC-edge      timer</span><br><span class="line">  1:          2          0   IO-APIC-edge      i8042</span><br><span class="line">  4:          2          0   IO-APIC-edge    </span><br><span class="line">  7:          0          0   IO-APIC-edge      parport0</span><br><span class="line">  8:          1          0   IO-APIC-edge      rtc0</span><br><span class="line">  9:          0          0   IO-APIC-fasteoi   acpi</span><br><span class="line"> 12:          4          0   IO-APIC-edge      i8042</span><br><span class="line"> 14:   45394223          0   IO-APIC-edge      ata_piix</span><br><span class="line"> 15:          0          0   IO-APIC-edge      ata_piix</span><br><span class="line"> 16:         56   16232636   IO-APIC-fasteoi   i915, p2p1</span><br><span class="line"> 18:    5333843   11365439   IO-APIC-fasteoi   uhci_hcd:usb4</span><br><span class="line"> 20:    2277759          0   IO-APIC-fasteoi   ata_piix</span><br><span class="line"> 21:          3          0   IO-APIC-fasteoi   ehci_hcd:usb1, uhci_hcd:usb2</span><br><span class="line"> 22:          0          0   IO-APIC-fasteoi   uhci_hcd:usb3</span><br><span class="line"> 23:       3813       6412   IO-APIC-fasteoi   uhci_hcd:usb5, Intel ICH7</span><br><span class="line">......</span><br><span class="line"># APIC表示高级可编程中断控制器（Advanced Programmable Interrupt Controlle）</span><br><span class="line"># APIC是SMP体系的核心，通过APIC可以将中断分发到不同的CPU 来处理。</span><br><span class="line"># i915：Intel i915 集成显卡驱动</span><br></pre></td></tr></table></figure>
+<h3 id="Soft-Interrupt-and-Context-Switch"><a href="#Soft-Interrupt-and-Context-Switch" class="headerlink" title="Soft Interrupt and Context Switch"></a>Soft Interrupt and Context Switch</h3><p>上下文切换（也称做进程切换或任务切换）是指 CPU 从一个进程或线程切换到另一个进程或线程。</p>
+<p>CPU通过时间片分配算法来循环执行任务，当前任务执行一个时间片后会切换到下一个任务。但是，在切换前会保存上一个任务的状态，以便下次切换回这个任务时，可以再次加载这个任务的状态，从任务保存到再加载的过程就是一次上下文切换。</p>
+<h3 id="查看中断"><a href="#查看中断" class="headerlink" title="查看中断"></a>查看中断</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># mpstat</span><br><span class="line"># dstat -c</span><br></pre></td></tr></table></figure>
+<h3 id="将IRQ绑定CPU"><a href="#将IRQ绑定CPU" class="headerlink" title="将IRQ绑定CPU"></a>将IRQ绑定CPU</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># echo CPU_MASK &gt; /proc/irq/&lt;irq number&gt;/smp_affinity</span><br><span class="line"></span><br><span class="line"># 案例：将CPU中断绑定到CPU #0,#1上。</span><br><span class="line"># echo 3 &gt; /proc/irq/&lt;irq number&gt;/smp_affinity</span><br></pre></td></tr></table></figure>
+<p>将IRQ绑定到某个CPU，那么最好在系统启动时，将那个CPU隔离起来，不被scheduler通常的调度。<br>可以通过在Linux kernel中加入启动参数：isolcpus=cpu-list将CPU隔离起来。</p>
+<h3 id="IRQ-Irqbalance"><a href="#IRQ-Irqbalance" class="headerlink" title="IRQ Irqbalance"></a>IRQ Irqbalance</h3><p>irqbalance用于优化中断分配，它会自动收集系统数据以分析使用模式，并依据系统负载状况将工作状态置于 Performance mode 或 Power-save mode。处于Performance mode 时，irqbalance 会将中断尽可能均匀地分发给各个 CPU core，以充分利用 CPU 多核，提升性能。</p>
+<p>处于Power-save mode 时，irqbalance 会将中断集中分配给第一个 CPU，以保证其它空闲 CPU 的睡眠时间，降低能耗</p>
+<p>但是在实时系统中会导致中断自动漂移，对性能造成不稳定因素，在高性能的场合建议关闭。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># /etc/init.d/irqbalance stop</span><br></pre></td></tr></table></figure>
+<h3 id="查看上下文切换"><a href="#查看上下文切换" class="headerlink" title="查看上下文切换"></a>查看上下文切换</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># sar -w           # 查看上下文切换的平均次数，以及进程创建的平均值</span><br><span class="line"># vmstat 1 3       # 每秒上下文切换次数</span><br></pre></td></tr></table></figure>
+<h3 id="如何减少上下文切换"><a href="#如何减少上下文切换" class="headerlink" title="如何减少上下文切换"></a>如何减少上下文切换</h3><pre><code>既然上下文切换会导致额外的开销，因此减少上下文切换次数便可以提高多线程程序的运行效率。减少上下文切换的方法有无锁并发编程、CAS算法、使用最少线程和使用协程。
+
+- 无锁并发编程。多线程竞争时，会引起上下文切换，所以多线程处理数据时，可以用一些办法来避免使用锁，如将数据的ID按照Hash取模分段，不同的线程处理不同段的数据
+- CAS算法。Java的Atomic包使用CAS算法来更新数据，而不需要加锁
+- 使用最少线程。避免创建不需要的线程，比如任务很少，但是创建了很多线程来处理，这样会造成大量线程都处于等待状态
+- 协程。在单线程里实现多任务的调度，并在单线程里维持多个任务间的切换
+</code></pre><h2 id="CPU-Iffinity（姻亲关系）"><a href="#CPU-Iffinity（姻亲关系）" class="headerlink" title="CPU Iffinity（姻亲关系）"></a>CPU Iffinity（姻亲关系）</h2><p>当软中断和上下文切换过大时。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">taskset</span><br><span class="line">mask       二进程  #CPU</span><br><span class="line">0x0000 0001  0001：node 0</span><br><span class="line">0x0000 0003  0011：node 0和1</span><br><span class="line">0x0000 0005  0101：node 0和2</span><br><span class="line">0x0000 0007  0111：node 0-2</span><br><span class="line"></span><br><span class="line"># taskset -p mask pid</span><br><span class="line">101, 3# CPU</span><br><span class="line"># taskset -p 0x00000005 101</span><br><span class="line"></span><br><span class="line">绑定进程101，CPU 0-2#、7#</span><br><span class="line">taskset -p -c 0-2,7 101</span><br><span class="line"></span><br><span class="line"># 指定CPU启动进程</span><br><span class="line">taskset mask -- program</span><br><span class="line">taskset -c 0,5,7-9 – myprogram</span><br></pre></td></tr></table></figure>
+<h3 id="CPU-子系统"><a href="#CPU-子系统" class="headerlink" title="CPU 子系统"></a>CPU 子系统</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># mkdir /cpusets</span><br><span class="line"># vim /etc/fstab</span><br><span class="line">cpuset                  /cpusets                cpuset  defaults        0 0</span><br><span class="line"># mount -a</span><br><span class="line"># ls /cpusets/</span><br><span class="line">cgroup.clone_children  cgroup.sane_behavior  cpuset.mem_exclusive   cpuset.memory_pressure          cpuset.memory_spread_slab  cpuset.sched_relax_domain_level  tasks</span><br><span class="line">cgroup.event_control   cpuset.cpu_exclusive  cpuset.mem_hardwall    cpuset.memory_pressure_enabled  cpuset.mems                notify_on_release</span><br><span class="line">cgroup.procs           cpuset.cpus           cpuset.memory_migrate  cpuset.memory_spread_page       cpuset.sched_load_balance  release_agent</span><br><span class="line">#</span><br><span class="line"># cat /cpusets/cpuset.cpus </span><br><span class="line">0-3</span><br><span class="line"></span><br><span class="line"># 创建子域</span><br><span class="line"># mkdir /cpusets/domain1</span><br><span class="line"># ls /cpusets/domain1/</span><br><span class="line">......</span><br><span class="line"># echo 0-1 &gt;/cpusets/domain1/cpuset.cpus   #将CPU #0,#1绑定进来</span><br><span class="line"># echo 0 &gt;/cpusets/domain1/cpuset.mems     #将内存绑定进来</span><br><span class="line"># echo #pid /cpusets/domain1/tasks         #将某个进程绑定进来，该进程只能在CPU 0-1上运行</span><br><span class="line"></span><br><span class="line"># ps -e -o psr,pid,cmd</span><br></pre></td></tr></table></figure>
+<h2 id="Memory-Tuning"><a href="#Memory-Tuning" class="headerlink" title="Memory Tuning"></a>Memory Tuning</h2><h3 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h3><ul>
+<li>MMU：memory manager unit内存管理单元</li>
+<li>TLB：缓存MMU转换的结果，使用大内存页提高性能</li>
+</ul>
+<h3 id="swap"><a href="#swap" class="headerlink" title="swap"></a>swap</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">vm.swappiness=&#123;0..100&#125;：使用交换分区的倾向性, 默认60</span><br><span class="line">	overcommit_memory=2： 过量使用（0：启发式过量；1：总是过量；2：允许下述超出百分比）</span><br><span class="line">	overcommit_ratio=50：</span><br><span class="line">		可用内存：swap+RAM*ratio</span><br><span class="line">			swap: 2G</span><br><span class="line">			RAM: 8G</span><br><span class="line">		        可用内存：memory=2G+8G*50%=6G</span><br><span class="line"></span><br><span class="line">	充分使用物理内存：</span><br><span class="line">		1、swap跟RAM一样大；</span><br><span class="line">		2、overcommit_memory=2, overcommit_ratio=100：swappiness=0；</span><br><span class="line">			memory: swap+ram</span><br><span class="line">	参考设置：</span><br><span class="line">		1、Batch compute（批处理计算）：&lt;= 4 * RAM</span><br><span class="line">		2、Database server：&lt;= 1G</span><br><span class="line">		3、Application server：&gt;= 0.5 * RAM</span><br><span class="line"></span><br><span class="line">默认值：</span><br><span class="line">[root@nginx1 ~]# cat /proc/sys/vm/overcommit_memory </span><br><span class="line">0</span><br><span class="line">[root@nginx1 ~]# cat /proc/sys/vm/swappiness </span><br><span class="line">60</span><br><span class="line">[root@nginx1 ~]# cat /proc/sys/vm/overcommit_ratio </span><br><span class="line">50</span><br></pre></td></tr></table></figure>
+<h3 id="swap-tuning"><a href="#swap-tuning" class="headerlink" title="swap tuning"></a>swap tuning</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 在每个磁盘上建立swap分区，并给与相同优先级</span><br><span class="line">/dev/sda1   swap swap pri=5 0 0</span><br><span class="line">/dev/sdb1   swap swap pri=5 0 0</span><br><span class="line">/dev/sdc1   swap swap pri=1 0 0    # 最慢的磁盘，swap最小的优先级</span><br></pre></td></tr></table></figure>
+<h3 id="min-free-kbytes"><a href="#min-free-kbytes" class="headerlink" title="min_free_kbytes"></a>min_free_kbytes</h3><ul>
+<li>/proc/sys/vm/min_free_kbytes<br>强制Linux VM最低保留多少空闲内存（Kbytes）</li>
+</ul>
+<p>内存管理从三个层次管理内存，分别是node, zone ,page。64位的x86物理机内存从高地址到低地址分为: Normal DMA32 DMA</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# grep Node /proc/zoneinfo </span><br><span class="line">Node 0, zone      DMA</span><br><span class="line">Node 0, zone    DMA32</span><br><span class="line">Node 0, zone   Normal</span><br><span class="line">Node 1, zone   Normal</span><br></pre></td></tr></table></figure>
+<p>每个zone都有自己的min low high,如下，但是单位是page。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# grep &quot;Node 0, zone&quot; -A10 /proc/zoneinfo </span><br><span class="line">Node 0, zone      DMA</span><br><span class="line">  pages free     3934</span><br><span class="line">        min      3</span><br><span class="line">        low      3</span><br><span class="line">        high     4</span><br><span class="line">        scanned  0</span><br><span class="line">        spanned  4095</span><br><span class="line">        present  3835</span><br><span class="line">    nr_free_pages 3934</span><br><span class="line">    nr_inactive_anon 0</span><br><span class="line">    nr_active_anon 0</span><br><span class="line">--</span><br><span class="line">Node 0, zone    DMA32</span><br><span class="line">  pages free     571977</span><br><span class="line">        min      749</span><br><span class="line">        low      936</span><br><span class="line">        high     1123</span><br><span class="line">        scanned  0</span><br><span class="line">        spanned  1044480</span><br><span class="line">        present  756520</span><br><span class="line">    nr_free_pages 571977</span><br><span class="line">    nr_inactive_anon 0</span><br><span class="line">    nr_active_anon 0</span><br><span class="line">--</span><br><span class="line">Node 0, zone   Normal</span><br><span class="line">  pages free     4737209</span><br><span class="line">        min      9478</span><br><span class="line">        low      11847</span><br><span class="line">        high     14217</span><br><span class="line">        scanned  0</span><br><span class="line">        spanned  9699328</span><br><span class="line">        present  9566720</span><br><span class="line">    nr_free_pages 4737209</span><br><span class="line">    nr_inactive_anon 166</span><br><span class="line">    nr_active_anon 3973945</span><br></pre></td></tr></table></figure>
+<p>上面可知：low = 5/4 <em> min、high = 3/2 </em> min。</p>
+<p>min 和 low的区别：</p>
+<ol>
+<li>min下的内存是保留给内核使用的；当到达min，会触发内存的direct reclaim</li>
+<li>low水位比min高一些，当内存可用量小于low的时候，会触发 kswapd reclaim。当kswapd慢慢的将内存 回收到high水位，就开始继续睡眠</li>
+</ol>
+<ul>
+<li>/proc/sys/vm/extra_free_kbytes</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# sysctl  -a | grep free</span><br><span class="line">vm.min_free_kbytes = 90112</span><br><span class="line">vm.extra_free_kbytes = 0</span><br></pre></td></tr></table></figure>
+<p>意义：low = min_free_kbytes*5/4 + extra_free_kbytes</p>
+<ul>
+<li>总结<br>调整该内存的内核参数的时候！调大的风险远大于调小的风险，会导致频繁的触发内存回收！如果有人想将vm.min_free_kbytes 调大，千万要注意当前的Free，一旦超过Free内存，会立刻触发direct reclaim。</li>
+</ul>
+<h3 id="Dirty-Page"><a href="#Dirty-Page" class="headerlink" title="Dirty Page"></a>Dirty Page</h3><p>因为硬盘的读写速度远赶不上内存的速度，系统就把读写比较频繁的数据事先放到内存中，以提高读写速度，这就叫高速缓存，linux是以页作为高速缓存的单位，当进程修改了高速缓存里的数据时，该页就被内核标记为脏页，内核将会在合适的时间把脏页的数据写到磁盘中去，以保持高速缓存中的数据和磁盘中的数据是一致的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm-2 ~]# sysctl -a | grep dirty</span><br><span class="line">vm.dirty_background_ratio = 10</span><br><span class="line">vm.dirty_background_bytes = 0</span><br><span class="line">vm.dirty_ratio = 20</span><br><span class="line">vm.dirty_bytes = 0</span><br><span class="line">vm.dirty_writeback_centisecs = 500</span><br><span class="line">vm.dirty_expire_centisecs = 3000</span><br><span class="line"></span><br><span class="line">[root@kvm-2 ~]# sysctl -a | grep pdflush</span><br><span class="line">vm.nr_pdflush_threads = 0</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>vm.dirty_background_ratio</p>
+<p>  这个参数指定了当文件系统缓存脏页数量达到系统内存百分之多少时（如5%）就会触发pdflush/flush/kdmflush等后台回写进程运行，将一定缓存的脏页<strong>异步</strong>地刷入外存；</p>
+</li>
+<li><p>vm.dirty_ratio</p>
+<p>  这个参数则指定了当文件系统缓存脏页数量达到系统内存百分之多少时（如10%），系统不得不开始处理缓存脏页（因为此时脏页数量已经比较多，为了避免数据丢失需要将一定脏页刷入外存）；在此过程中很多应用进程可能会因为系统转而处理文件IO而阻塞。</p>
+</li>
+</ul>
+<blockquote>
+<p>之前一直错误的以为dirty_ratio的触发条件不可能达到，因为每次肯定会先达到vm.dirty_background_ratio的条件，后来才知道自己理解错了。确实是先达到vm.dirty_background_ratio的条件然后触发flush进程进行异步的回写操作，但是这一过程中应用进程仍然可以进行写操作，如果多个应用进程写入的量大于flush进程刷出的量那自然会达到vm.dirty_ratio这个参数所设定的坎，此时操作系统会转入同步地处理脏页的过程，阻塞应用进程。</p>
+</blockquote>
+<ul>
+<li><p>vm.nr_pdflush_threads<br>  pdflush是linux系统后台运行的一个线程，这个进程负责把page cahce中的dirty状态的数据定期的输入磁盘。</p>
+<p>  /proc/sys/vm/nr_pdflush_threads查看当前系统运行pdflush数量。当一段时间（一般是1s）没有任何的pdflush处于工作状态，系统会remove一个pdflush线程。pdflush最大和最小的数量是有配置的，但这些配置一般很少修改。</p>
+</li>
+<li><p>vm.dirty_writeback_centisecs</p>
+<p>  默认一般是500（单位是1/100秒）。这个参数表示5s的时间pdflush就会被唤起去刷新脏数据。建议用户使用默认值。</p>
+</li>
+<li><p>vm.dirty_expire_centisecs</p>
+<p>  默认是3000（单位是1/100秒）。这个值表示page cache中的数据多久之后被标记为脏数据。只有标记为脏的数据在下一个周期到来时pdflush才会刷入到磁盘，这样就意味着用户写的数据在30秒之后才有可能被刷入磁盘，在这期间断电都是会丢数据的。</p>
+</li>
+<li><p>drop_caches（干净页的回收，缓存清理）</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx1 ~]# cat /proc/sys/vm/drop_caches</span><br><span class="line">0</span><br><span class="line">[root@nginx1 ~]# sync  #先将缓存写入磁盘</span><br><span class="line">[root@nginx1 ~]# echo 1 /proc/sys/vm/drop_caches  #释放所有页缓冲内存</span><br><span class="line">[root@nginx1 ~]# echo 2 /proc/sys/vm/drop_caches  #释放未使用的slab缓冲内存</span><br><span class="line">[root@nginx1 ~]# echo 3 /proc/sys/vm/drop_caches  #释放所有页缓冲和slab缓冲内存</span><br><span class="line">备注：</span><br><span class="line">slab缓存详解（一）http://blog.chinaunix.net/uid-27102327-id-3268687.html</span><br><span class="line">slab缓存详解（二）http://blog.chinaunix.net/uid-27102327-id-3268711.html</span><br><span class="line">http://blog.csdn.net/hs794502825/article/details/7981524</span><br></pre></td></tr></table></figure>
+<h3 id="OOM-Kill"><a href="#OOM-Kill" class="headerlink" title="OOM Kill"></a>OOM Kill</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx1 ~]# cat /proc/sys/vm/panic_on_oom     # 0:on, 1:off</span><br><span class="line">0</span><br><span class="line">[root@nginx1 ~]# echo 1 /proc/sys/vm/panic_on_oom  # 关闭oom kill，不推荐</span><br><span class="line">注意：由调整的进程衍生的进程将继承该进程的 oom_score。例如：如果 sshd 进程不受 oom _killer 功能影响，所有由 SSH 会话产生的进程都将不受其影响。</span><br><span class="line"></span><br><span class="line">当内存耗尽时，系统使用oom kill杀死大oom_score（-16~15，2的平方）的进程。oom_score得分由oom_adj得来。</span><br><span class="line">减小oom-adj值，避免被系统杀死：</span><br><span class="line"># echo -17 &gt; /proc/$(pidof sshd)/oom_adj</span><br><span class="line"></span><br><span class="line">-17：避免oom_killer杀死自己</span><br><span class="line">-16~15：帮助计算oom_score</span><br><span class="line">16：预留的最低级别，一般对于缓存的进程才有可能设置成这个级别</span><br></pre></td></tr></table></figure>
+<p>有时free查看还有充足的内存，但还是会触发OOM，是因为该进程可能占用了特殊的内存地址空间。</p>
+<h3 id="Huge-Page"><a href="#Huge-Page" class="headerlink" title="Huge Page"></a>Huge Page</h3><p>操作系统默认的内存是以4KB分页的，而虚拟地址和内存地址需要转换， 而这个转换要查表，CPU为了加速这个查表过程会内建TLB(Translation Lookaside Buffer)。 显然，如果虚拟页越小，表里的条目数也就越多，而TLB大小是有限的，条目数越多TLB的Cache Miss也就会越高， 所以如果我们能启用大内存页就能间接降低TLB Cache Miss。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@jump204_76 ~]# sysctl -w vm.nr_hugepages=128</span><br><span class="line">vm.nr_hugepages = 128</span><br><span class="line">[root@jump204_76 ~]# cat /proc/meminfo | grep Huge</span><br><span class="line">AnonHugePages:     77824 kB</span><br><span class="line">HugePages_Total:     128</span><br><span class="line">HugePages_Free:      128</span><br><span class="line">HugePages_Rsvd:        0</span><br><span class="line">HugePages_Surp:        0</span><br><span class="line">Hugepagesize:       2048 kB</span><br></pre></td></tr></table></figure>
+<h3 id="Transparent-HugePages（透明大页）"><a href="#Transparent-HugePages（透明大页）" class="headerlink" title="Transparent HugePages（透明大页）"></a>Transparent HugePages（透明大页）</h3><ul>
+<li><p>什么是Transparent HugePages（透明大页）?</p>
+<p>  简单的讲，对于内存占用较大的程序，可以通过开启HugePage来提升系统性能。但这里会有个要求，就是在编写程序时，代码里需要显示的对HugePage进行支持。</p>
+<p>  而红帽企业版Linux为了减少程序开发的复杂性，并对HugePage进行支持，部署了Transparent HugePages。Transparent HugePages是一个使管理Huge Pages自动化的抽象层，实现方案为操作系统后台有一个叫做khugepaged的进程，它会一直扫描所有进程占用的内存，在可能的情况下会把4kPage交换为Huge Pages。</p>
+<p>  为什么Transparent HugePages（透明大页）对系统的性能会产生影响？<br>  在khugepaged进行扫描进程占用内存，并将4kPage交换为Huge Pages的这个过程中，对于操作的内存的各种分配活动都需要各种内存锁，直接影响程序的内存访问性能。并且，这个过程对于应用是透明的，在应用层面不可控制,对于专门为4k page优化的程序来说，可能会造成随机的性能下降现象。</p>
+</li>
+<li><p>怎么设置Transparent HugePages（透明大页）?</p>
+<ol>
+<li><p>查看是否启用透明大页</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@venus153 ~]# cat /sys/kernel/mm/transparent_hugepage/enabled </span><br><span class="line">[always] madvise never</span><br><span class="line">使用命令查看时，如果输出结果为[always]表示透明大页启用了，[never]表示透明大页禁用。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭透明大页</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled </span><br><span class="line">echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li><p>启用透明大页</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo always &gt;  /sys/kernel/mm/transparent_hugepage/enabled </span><br><span class="line">echo always &gt; /sys/kernel/mm/transparent_hugepage/defrag</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>设置开机关闭</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># vim /etc/rc.local</span><br><span class="line">if test -f /sys/kernel/mm/redhat_transparent_hugepage/enabled; then     </span><br><span class="line">     echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled     </span><br><span class="line">    echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag </span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h3><p>管理命令<br>ipcs<br>ipcrm</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">shm:</span><br><span class="line">	shmmni: 系统级别，所允许使用的共享内存段上限；</span><br><span class="line">	shmall: 系统级别，能够为共享内存分配使用的最大页面数；</span><br><span class="line">	shmmax: 单个共享内存段的上限；</span><br><span class="line">messages:</span><br><span class="line">	msgmnb: 单个消息队列的上限，单位为字节；</span><br><span class="line">	msgmni: 系统级别，消息队列个数上限；</span><br><span class="line">	msgmax: 单个消息大小的上限，单位为字节；</span><br><span class="line"></span><br><span class="line">[root@localhost ~]# sysctl -a | grep shm</span><br><span class="line">kernel.shmmax = 68719476736</span><br><span class="line">kernel.shmall = 4294967296        #单位page，等于4294967296*4096 byte</span><br><span class="line">kernel.shmmni = 4096</span><br><span class="line">kernel.shm_rmid_forced = 0</span><br><span class="line">vm.hugetlb_shm_group = 0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx1 ~]# ipcs -l</span><br><span class="line"></span><br><span class="line">------ Shared Memory Limits --------</span><br><span class="line">max number of segments = 4096                #段最大数量</span><br><span class="line">max seg size (kbytes) = 67108864               #段大小</span><br><span class="line">max total shared memory (kbytes) = 17179869184</span><br><span class="line">min seg size (bytes) = 1</span><br><span class="line"></span><br><span class="line">------ Semaphore Limits --------</span><br><span class="line">max number of arrays = 128</span><br><span class="line">max semaphores per array = 250</span><br><span class="line">max semaphores system wide = 32000</span><br><span class="line">max ops per semop call = 32</span><br><span class="line">semaphore max value = 32767</span><br><span class="line"></span><br><span class="line">------ Messages: Limits --------</span><br><span class="line">max queues system wide = 32768</span><br><span class="line">max size of message (bytes) = 65536</span><br><span class="line">default max size of queue (bytes) = 65536</span><br></pre></td></tr></table></figure>
+<h2 id="I-O-Tuning"><a href="#I-O-Tuning" class="headerlink" title="I/O Tuning"></a>I/O Tuning</h2><h3 id="File-System"><a href="#File-System" class="headerlink" title="File System"></a>File System</h3><ul>
+<li><p>Ext4</p>
+<ul>
+<li><p>内节点表初始化</p>
+<p>对于超大文件系统，mkfs.ext4  进程要花很长时间初始化文件系统中到所有内节点表。可使用 -Elazy_itable_init=1 选项延迟这个进程。如果使用这个选项，内核进程将在挂载文件系统后继续初始化<br>该文件它。可使用 mount 命令的 -o init_itable=n 选项控制发生初始化到比例，其中执行这个后台初始化的时间约为 1/n。n 的默认值为 10。</p>
+</li>
+<li><p>Auto-fsync 行为</p>
+<p>因为在重命名、截取或者重新写入某个现有文件后，有些应用程序不总是可以正确执行 fsync()，在重命名和截取操作后，ext4  默认自动同步文件。这个行为与原有到 ext3 文件系统行为大致相同。但 fsync()<br>操作可能会很耗时，因此如果不需要这个自动行为，请在 m ount 命令后使用 -o noauto_da_alloc 选项禁用它。这意味着该程序必须明确使用 fsync() 以保证数据一致。</p>
+</li>
+<li><p>日志  I/O  优先权</p>
+<p>默认情况下，日志注释 I/O 比普通 I/O 的优先权稍高。这个优先权可使用 mount 命令的journal_ioprio=n 选项控制。默认值为 3。有效值范围为 0 -7，其中 0  时最高优先权 I /O。</p>
+</li>
+</ul>
+</li>
+<li><p>XFS</p>
+</li>
+</ul>
+<h2 id="Network-Tuning"><a href="#Network-Tuning" class="headerlink" title="Network Tuning"></a>Network Tuning</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tcp_max_tw_buckets: 只允许调大</span><br><span class="line">	tw：保存timewait的连接个数</span><br><span class="line">		established --&gt; tw</span><br></pre></td></tr></table></figure>
+<h1 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h1><ul>
+<li>性能观测工具</li>
+</ul>
+<p><img src="/images/linux/system-tuning/linux_observability_tools.png" alt="linux_observability_tools"></p>
+<ul>
+<li>性能测评工具</li>
+</ul>
+<p><img src="/images/linux/system-tuning/linux_benchmarking_tools.png" alt="linux_benchmarking_tools"></p>
+<ul>
+<li>性能调优工具</li>
+</ul>
+<p><img src="/images/linux/system-tuning/linux_tuning_tools.png" alt="linux_tuning_tools"></p>
+<ul>
+<li>sar命令</li>
+</ul>
+<p><img src="/images/linux/system-tuning/linux_observability_sar.png" alt="linux_observability_sar"></p>
+<ul>
+<li><a href="http://www.brendangregg.com/linuxperf.html" target="_blank" rel="noopener">Linux Performance大全</a></li>
+</ul>
+<p><img src="/images/linux/system-tuning/linux_perf_tools_full.png" alt="linux_perf_tools_full"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+       
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/tuning/" rel="tag"># tuning</a>
+          
+            <a href="/tags/调优/" rel="tag"># 调优</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/07/linux/Overview-of-performance-tuning/" rel="next" title="Linux System Tuning">
+                <i class="fa fa-chevron-left"></i> Linux System Tuning
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">categories</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Purpose-of-Performance-Tuning"><span class="nav-number">1.1.</span> <span class="nav-text">Purpose of Performance Tuning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Required-Skills"><span class="nav-number">1.2.</span> <span class="nav-text">Required Skills</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tuning-Efficiency（调优效率）"><span class="nav-number">1.3.</span> <span class="nav-text">Tuning Efficiency（调优效率）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Understand-Hardware"><span class="nav-number">2.</span> <span class="nav-text">Understand Hardware</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU"><span class="nav-number">2.1.</span> <span class="nav-text">CPU</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#X86架构机器三个特点（RH442）"><span class="nav-number">2.1.1.</span> <span class="nav-text">X86架构机器三个特点（RH442）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查看CPU"><span class="nav-number">2.1.1.1.</span> <span class="nav-text">查看CPU</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU架构"><span class="nav-number">2.1.2.</span> <span class="nav-text">CPU架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Numa-Architecture"><span class="nav-number">2.2.</span> <span class="nav-text">Numa Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查看Numa-node"><span class="nav-number">2.2.1.</span> <span class="nav-text">查看Numa node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看node"><span class="nav-number">2.2.2.</span> <span class="nav-text">查看node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看cpu-cache"><span class="nav-number">2.2.3.</span> <span class="nav-text">查看cpu cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看numa状态"><span class="nav-number">2.2.4.</span> <span class="nav-text">查看numa状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看内存numa-node分布"><span class="nav-number">2.2.5.</span> <span class="nav-text">查看内存numa node分布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看线程run在哪个processor"><span class="nav-number">2.2.6.</span> <span class="nav-text">查看线程run在哪个processor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#numad"><span class="nav-number">2.2.7.</span> <span class="nav-text">numad</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU-Cache"><span class="nav-number">2.3.</span> <span class="nav-text">CPU Cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查看CPU-Cache"><span class="nav-number">2.3.1.</span> <span class="nav-text">查看CPU Cache</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memory"><span class="nav-number">2.4.</span> <span class="nav-text">Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Storage"><span class="nav-number">2.5.</span> <span class="nav-text">Storage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#磁盘架构"><span class="nav-number">2.5.1.</span> <span class="nav-text">磁盘架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#磁盘速度"><span class="nav-number">2.5.2.</span> <span class="nav-text">磁盘速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#磁盘类型"><span class="nav-number">2.5.3.</span> <span class="nav-text">磁盘类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看磁盘"><span class="nav-number">2.5.4.</span> <span class="nav-text">查看磁盘</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSD"><span class="nav-number">2.6.</span> <span class="nav-text">SSD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSD-Types"><span class="nav-number">2.6.1.</span> <span class="nav-text">SSD Types</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSD-Garbage-Collection"><span class="nav-number">2.6.2.</span> <span class="nav-text">SSD Garbage Collection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSD-Trim"><span class="nav-number">2.6.3.</span> <span class="nav-text">SSD Trim</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RAID"><span class="nav-number">2.7.</span> <span class="nav-text">RAID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Networking-Profile"><span class="nav-number">2.8.</span> <span class="nav-text">Networking Profile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查看网卡"><span class="nav-number">2.8.1.</span> <span class="nav-text">查看网卡</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主板"><span class="nav-number">2.9.</span> <span class="nav-text">主板</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCI设备"><span class="nav-number">2.10.</span> <span class="nav-text">PCI设备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查看pci设备"><span class="nav-number">2.10.1.</span> <span class="nav-text">查看pci设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB设备"><span class="nav-number">2.10.2.</span> <span class="nav-text">USB设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看内核产生的硬件日志"><span class="nav-number">2.10.3.</span> <span class="nav-text">查看内核产生的硬件日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取硬件命令汇总"><span class="nav-number">2.10.4.</span> <span class="nav-text">获取硬件命令汇总</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Understand-Software"><span class="nav-number">3.</span> <span class="nav-text">Understand Software</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stoarge"><span class="nav-number">3.1.</span> <span class="nav-text">Stoarge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O-Schedulers"><span class="nav-number">3.2.</span> <span class="nav-text">I/O Schedulers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Queue"><span class="nav-number">3.2.1.</span> <span class="nav-text">Queue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#I-O-Scheduler-Manage"><span class="nav-number">3.2.2.</span> <span class="nav-text">I/O Scheduler Manage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tuning-Theory"><span class="nav-number">3.2.3.</span> <span class="nav-text">Tuning Theory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Queue-Length"><span class="nav-number">3.2.4.</span> <span class="nav-text">Queue Length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wait-Time"><span class="nav-number">3.2.5.</span> <span class="nav-text">Wait Time</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Service-Time"><span class="nav-number">3.2.6.</span> <span class="nav-text">Service Time</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary-of-Queue-Theory"><span class="nav-number">3.2.7.</span> <span class="nav-text">Summary of Queue Theory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary-of-strategies"><span class="nav-number">3.2.8.</span> <span class="nav-text">Summary of strategies</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kernel-Module"><span class="nav-number">3.3.</span> <span class="nav-text">Kernel Module</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Module-commands"><span class="nav-number">3.3.1.</span> <span class="nav-text">Module commands</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Modules-parameters"><span class="nav-number">3.3.2.</span> <span class="nav-text">Modules parameters</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tuned"><span class="nav-number">3.4.</span> <span class="nav-text">Tuned</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Use-Tuned"><span class="nav-number">3.4.1.</span> <span class="nav-text">Use Tuned</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Custom-Tuning-Profiles"><span class="nav-number">3.4.2.</span> <span class="nav-text">Custom Tuning Profiles</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU-Tuning"><span class="nav-number">3.5.</span> <span class="nav-text">CPU Tuning</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Interrupt-and-IRQ"><span class="nav-number">3.5.1.</span> <span class="nav-text">Interrupt and IRQ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Soft-Interrupt-and-Context-Switch"><span class="nav-number">3.5.2.</span> <span class="nav-text">Soft Interrupt and Context Switch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看中断"><span class="nav-number">3.5.3.</span> <span class="nav-text">查看中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将IRQ绑定CPU"><span class="nav-number">3.5.4.</span> <span class="nav-text">将IRQ绑定CPU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IRQ-Irqbalance"><span class="nav-number">3.5.5.</span> <span class="nav-text">IRQ Irqbalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看上下文切换"><span class="nav-number">3.5.6.</span> <span class="nav-text">查看上下文切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何减少上下文切换"><span class="nav-number">3.5.7.</span> <span class="nav-text">如何减少上下文切换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU-Iffinity（姻亲关系）"><span class="nav-number">3.6.</span> <span class="nav-text">CPU Iffinity（姻亲关系）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU-子系统"><span class="nav-number">3.6.1.</span> <span class="nav-text">CPU 子系统</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memory-Tuning"><span class="nav-number">3.7.</span> <span class="nav-text">Memory Tuning</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#属性"><span class="nav-number">3.7.1.</span> <span class="nav-text">属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#swap"><span class="nav-number">3.7.2.</span> <span class="nav-text">swap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#swap-tuning"><span class="nav-number">3.7.3.</span> <span class="nav-text">swap tuning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#min-free-kbytes"><span class="nav-number">3.7.4.</span> <span class="nav-text">min_free_kbytes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dirty-Page"><span class="nav-number">3.7.5.</span> <span class="nav-text">Dirty Page</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OOM-Kill"><span class="nav-number">3.7.6.</span> <span class="nav-text">OOM Kill</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Huge-Page"><span class="nav-number">3.7.7.</span> <span class="nav-text">Huge Page</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transparent-HugePages（透明大页）"><span class="nav-number">3.7.8.</span> <span class="nav-text">Transparent HugePages（透明大页）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进程间通信"><span class="nav-number">3.7.9.</span> <span class="nav-text">进程间通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O-Tuning"><span class="nav-number">3.8.</span> <span class="nav-text">I/O Tuning</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#File-System"><span class="nav-number">3.8.1.</span> <span class="nav-text">File System</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Network-Tuning"><span class="nav-number">3.9.</span> <span class="nav-text">Network Tuning</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结尾"><span class="nav-number">4.</span> <span class="nav-text">结尾</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v6.5.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
