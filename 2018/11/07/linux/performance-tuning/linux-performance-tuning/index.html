@@ -141,7 +141,7 @@
 <meta property="og:image" content="http://www.yadoom.com/images/linux/performance-tuning/linux_tuning_tools.png">
 <meta property="og:image" content="http://www.yadoom.com/images/linux/performance-tuning/linux_observability_sar.png">
 <meta property="og:image" content="http://www.yadoom.com/images/linux/performance-tuning/linux_perf_tools_full.png">
-<meta property="og:updated_time" content="2018-12-28T08:20:43.432Z">
+<meta property="og:updated_time" content="2019-01-09T14:29:10.589Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux Performance Tuning">
 <meta name="twitter:description" content="前言Purpose of Performance Tuning 将系统调节成扮演某个角色。譬如：数据库服务器、WEB服务器、文件服务器、邮件服务器等等。 找到并缓解系统瓶颈 调优指标：响应速度，吞吐量 CPU、内存等硬件在最优情况下等达到最高的性能，你必须清楚。    Required Skills Understand both hardware and software Collecting">
@@ -502,7 +502,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2018-12-28 16:20:43" itemprop="dateModified" datetime="2018-12-28T16:20:43+08:00">2018-12-28</time>
+                <time title="修改时间：2019-01-09 22:29:10" itemprop="dateModified" datetime="2019-01-09T22:29:10+08:00">2019-01-09</time>
               
             
           </span>
@@ -519,7 +519,14 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/非原创/" itemprop="url" rel="index"><span itemprop="name">非原创</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/非原创/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
 
                 
                 
@@ -1560,21 +1567,21 @@
 <li><p>查看是否启用透明大页</p>
  <figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">[root@yadoom ~]</span># cat /sys/kernel/mm/transparent_hugepage/enabled </span><br><span class="line"><span class="string">[always]</span> madvise never</span><br><span class="line">使用命令查看时，如果输出结果为<span class="string">[always]</span>表示透明大页启用了，<span class="string">[never]</span>表示透明大页禁用。</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>关闭透明大页</p>
- <figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/enabled </span><br><span class="line">echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/defrag</span><br></pre></td></tr></table></figure>
-<ol start="3">
-<li><p>启用透明大页</p>
-<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo always &gt;  <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/enabled </span><br><span class="line">echo always &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/defrag</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
-<li><p>设置开机关闭</p>
- <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@yadoom ~]<span class="comment"># vim /etc/rc.local</span></span><br><span class="line"><span class="keyword">if</span> test -f /sys/kernel/mm/redhat_transparent_hugepage/enabled; <span class="keyword">then</span>     </span><br><span class="line">     echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/enabled     </span><br><span class="line">    echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/defrag </span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
-</li>
 </ol>
 </li>
 </ul>
-<p>问题：<a href="https://my.oschina.net/llzx373/blog/226446" target="_blank" rel="noopener">Transparent Huge Pages相关概念及对mysql的影响</a></p>
+<pre><code>2. 关闭透明大页
+
+    <figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/enabled </span><br><span class="line">echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/defrag</span><br></pre></td></tr></table></figure>
+</code></pre><ol start="3">
+<li><p>启用透明大页</p>
+  <figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo always &gt;  <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/enabled </span><br><span class="line">echo always &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/defrag</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<pre><code>4. 设置开机关闭
+
+    <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@yadoom ~]<span class="comment"># vim /etc/rc.local</span></span><br><span class="line"><span class="keyword">if</span> test -f /sys/kernel/mm/redhat_transparent_hugepage/enabled; <span class="keyword">then</span>     </span><br><span class="line">     echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/enabled     </span><br><span class="line">    echo never &gt; <span class="regexp">/sys/kernel</span><span class="regexp">/mm/transparent</span>_hugepage/defrag </span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+</code></pre><p>问题：<a href="https://my.oschina.net/llzx373/blog/226446" target="_blank" rel="noopener">Transparent Huge Pages相关概念及对mysql的影响</a></p>
 <h3 id="Swap"><a href="#Swap" class="headerlink" title="Swap"></a>Swap</h3><p>内存回收和swap的关系，我们可以提出以下几个问题：</p>
 <ol>
 <li>什么时候会进行内存回收呢？</li>
@@ -1591,11 +1598,9 @@
 </li>
 <li><p>Swap</p>
 <ul>
-<li><p>si: Amount of memory swapped in from disk (/s).</p>
-<ul>
-<li>so: Amount of memory swapped to disk (/s).</li>
-</ul>
-<p>paging in and paging out frequently hurts performance. so si and so are very important.</p>
+<li>si: Amount of memory swapped in from disk (/s).</li>
+<li><p>so: Amount of memory swapped to disk (/s).</p>
+<p>paging in and paging out frequently hurts performance. si and so are very important.</p>
 </li>
 </ul>
 </li>
@@ -1606,9 +1611,7 @@
 <li>Page cache<br>  used to cache file system block data(file content).跟文件相关的东西的缓存。</li>
 </ul>
 <figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# sysctl -a |grep vfs_cache_pressure   # Buffer cache</span><br><span class="line">vm.vfs_cache_pressure = <span class="number">100</span></span><br><span class="line"><span class="meta"># 0: 不回收dentries和inodes;</span></span><br><span class="line"><span class="meta"># 1-99: 倾向于不回收；</span></span><br><span class="line"><span class="meta"># 100: 倾向性等于 page cache和swap cache；</span></span><br><span class="line"><span class="meta"># 100+: 倾向于回收；</span></span><br></pre></td></tr></table></figure>
-<h3 id="Slab"><a href="#Slab" class="headerlink" title="Slab"></a>Slab</h3><blockquote>
-<p>在linux内核中会有许多小对象，这些对象构造销毁十分频繁，比如inode，dentry。这么这些对象如果每次构建的时候就向内存要一个页，而其实际大小可能只有几个字节，这样就非常浪费，为了解决这个问题就引入了一种新的机制来处理在同一页框中如何分配小存储器区。这就是我们要讨论的slab层。在讲述slab前，我想先铺垫一下有关内存页的概念，我们都知道在linux中内存都是以页为单位来进行管理的(通常为4KB)，当内核需要内存就调用如：kmem_getpages这样的接口(底层调用__alloc_pages())。那么内核是如何管理页的分配的，这里linux使用了伙伴算法。slab也是向内核申请一个个页，然后再对这些页框做管理来达到分配小存储区的目的的。</p>
-</blockquote>
+<h3 id="Slab"><a href="#Slab" class="headerlink" title="Slab"></a>Slab</h3><p>在linux内核中会有许多小对象，这些对象构造销毁十分频繁，比如inode，dentry。这么这些对象如果每次构建的时候就向内存要一个页，而其实际大小可能只有几个字节，这样就非常浪费，为了解决这个问题就引入了一种新的机制来处理在同一页框中如何分配小存储器区。这就是我们要讨论的slab层。在讲述slab前，我想先铺垫一下有关内存页的概念，我们都知道在linux中内存都是以页为单位来进行管理的(通常为4KB)，当内核需要内存就调用如：kmem_getpages这样的接口(底层调用__alloc_pages())。那么内核是如何管理页的分配的，这里linux使用了伙伴算法。slab也是向内核申请一个个页，然后再对这些页框做管理来达到分配小存储区的目的的。</p>
 <ul>
 <li><p>What is slab</p>
 <p>  A slab is a set of one or more contiguous pages of memory set aside by the slab allocator for an individual cache. This memory is further divided into equal segments the size of the object type that the cache is managing.(Slab是一种内存分配器，通过将内存划分不同大小的空间分配给对象使用来进行缓存管理，应用于内核对象的缓存。)</p>
@@ -1652,19 +1655,17 @@
 </li>
 <li><p>vm.dirty_ratio(default 20)</p>
 <p>  这个参数则指定了当文件系统缓存脏页数量达到系统内存百分之多少时（如10%），系统不得不开始处理缓存脏页（因为此时脏页数量已经比较多，为了避免数据丢失需要将一定脏页刷入外存）；在此过程中很多应用进程可能会因为系统转而处理文件IO而阻塞。</p>
-</li>
-</ul>
 <blockquote>
 <p>之前一直错误的以为dirty_ratio的触发条件不可能达到，因为每次肯定会先达到vm.dirty_background_ratio的条件，后来才知道自己理解错了。确实是先达到vm.dirty_background_ratio的条件然后触发flush进程进行异步的回写操作，但是这一过程中应用进程仍然可以进行写操作，如果多个应用进程写入的量大于flush进程刷出的量那自然会达到vm.dirty_ratio这个参数所设定的坎，此时操作系统会转入同步地处理脏页的过程，阻塞应用进程。</p>
 </blockquote>
-<ul>
+</li>
 <li><p>vm.nr_pdflush_threads<br>  pdflush是linux系统后台运行的一个线程，这个进程负责把page cahce中的dirty状态的数据定期的输入磁盘。</p>
 <p>  /proc/sys/vm/nr_pdflush_threads查看当前系统运行pdflush数量。当一段时间（一般是1s）没有任何的pdflush处于工作状态，系统会remove一个pdflush线程。pdflush最大和最小的数量是有配置的，但这些配置一般很少修改。</p>
 </li>
 <li><p>drop_caches（干净页的回收，缓存清理）</p>
+  <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># cat /proc/sys/vm/drop_caches</span></span><br><span class="line"><span class="number">0</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># sync  #先将缓存写入磁盘</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># echo 1 /proc/sys/vm/drop_caches  #释放所有页缓冲内存</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># echo 2 /proc/sys/vm/drop_caches  #释放未使用的slab缓冲内存</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># echo 3 /proc/sys/vm/drop_caches  #释放所有页缓冲和slab缓冲内存</span></span><br><span class="line">备注：</span><br><span class="line">slab缓存详解（一）http:<span class="comment">//blog.chinaunix.net/uid-27102327-id-3268687.html</span></span><br><span class="line">slab缓存详解（二）http:<span class="comment">//blog.chinaunix.net/uid-27102327-id-3268711.html</span></span><br><span class="line">http:<span class="comment">//blog.csdn.net/hs794502825/article/details/7981524</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># cat /proc/sys/vm/drop_caches</span></span><br><span class="line"><span class="number">0</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># sync  #先将缓存写入磁盘</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># echo 1 /proc/sys/vm/drop_caches  #释放所有页缓冲内存</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># echo 2 /proc/sys/vm/drop_caches  #释放未使用的slab缓冲内存</span></span><br><span class="line">[<span class="meta">root@yadoom ~</span>]<span class="meta"># echo 3 /proc/sys/vm/drop_caches  #释放所有页缓冲和slab缓冲内存</span></span><br><span class="line">备注：</span><br><span class="line">slab缓存详解（一）http:<span class="comment">//blog.chinaunix.net/uid-27102327-id-3268687.html</span></span><br><span class="line">slab缓存详解（二）http:<span class="comment">//blog.chinaunix.net/uid-27102327-id-3268711.html</span></span><br><span class="line">http:<span class="comment">//blog.csdn.net/hs794502825/article/details/7981524</span></span><br></pre></td></tr></table></figure>
 <h3 id="OOM-Kill"><a href="#OOM-Kill" class="headerlink" title="OOM Kill"></a>OOM Kill</h3><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@yadoom ~]# cat /<span class="keyword">proc</span>/sys/vm/panic_on_oom     # 0:on, 1:off</span><br><span class="line">0</span><br><span class="line">[root@yadoom ~]#<span class="title"> echo</span> 1 /<span class="keyword">proc</span>/sys/vm/panic_on_oom  # 关闭oom<span class="title"> kill，不推荐</span></span><br><span class="line"><span class="title">注意：由调整的进程衍生的进程将继承该进程的</span> oom_score。例如：如果<span class="title"> sshd</span> 进程不受<span class="title"> oom</span> _killer 功能影响，所有由<span class="title"> SSH</span> 会话产生的进程都将不受其影响。</span><br><span class="line"></span><br><span class="line">当内存耗尽时，系统使用oom<span class="title"> kill杀死大oom_score（-16~15，2的平方）的进程。oom_score得分由oom_adj得来。</span></span><br><span class="line"><span class="title">减小oom-adj值，避免被系统杀死：</span></span><br><span class="line"><span class="title">[root@yadoom</span> ~]#<span class="title"> echo</span> -17 &gt; /<span class="keyword">proc</span>/$(pidof<span class="title"> sshd)/oom_adj</span></span><br><span class="line"><span class="title"></span></span><br><span class="line"><span class="title">-17：避免oom_killer杀死自己</span></span><br><span class="line"><span class="title">-16~15：帮助计算oom_score</span></span><br><span class="line"><span class="title">16：预留的最低级别，一般对于缓存的进程才有可能设置成这个级别</span></span><br></pre></td></tr></table></figure>
 <p>有时free查看还有充足的内存，但还是会触发OOM，是因为该进程可能占用了特殊的内存地址空间。(‘Lower’ memory zone like DMA, DMA32)</p>
 <h3 id="min-free-kbytes"><a href="#min-free-kbytes" class="headerlink" title="min_free_kbytes"></a>min_free_kbytes</h3><ul>
@@ -1686,8 +1687,9 @@
 <figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@yadoom ~]<span class="comment"># sysctl  -a | grep free</span></span><br><span class="line">vm.<span class="attr">min_free_kbytes</span> = <span class="number">90112</span></span><br><span class="line">vm.<span class="attr">extra_free_kbytes</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>意义：low = min_free_kbytes*5/4 + extra_free_kbytes</p>
 <ul>
-<li>总结<br>调整该内存的内核参数的时候！调大的风险远大于调小的风险，会导致频繁的触发内存回收！如果有人想将vm.min_free_kbytes 调大，千万要注意当前的Free，一旦超过Free内存，会立刻触发direct reclaim。</li>
+<li>总结</li>
 </ul>
+<p>调整该内存的内核参数的时候！调大的风险远大于调小的风险，会导致频繁的触发内存回收！如果有人想将vm.min_free_kbytes 调大，千万要注意当前的Free，一旦超过Free内存，会立刻触发direct reclaim。</p>
 <h3 id="进程间通信（SysV-IPC）"><a href="#进程间通信（SysV-IPC）" class="headerlink" title="进程间通信（SysV IPC）"></a>进程间通信（SysV IPC）</h3><ul>
 <li>Types of IPC<ul>
 <li>Semaphores（信号量）</li>
@@ -1918,8 +1920,7 @@
   <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vim /etc/cgconfig.d/myio.conf</span><br><span class="line">group lowio &#123;</span><br><span class="line">        blkio &#123;</span><br><span class="line">                blkio.<span class="attribute">weight</span>=100;      # blkio.weight works under cfq scheduler</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">group highio &#123;</span><br><span class="line">        blkio &#123;</span><br><span class="line">                blkio.<span class="attribute">weight</span>=200;      # blkio.weight works under cfq scheduler</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">group ddio &#123;</span><br><span class="line">        blkio &#123;</span><br><span class="line">                blkio.throttle.<span class="attribute">read_bps_device</span>=<span class="string">"8:0 1000000"</span></span><br><span class="line">                # 针对主号，从号“8:0”的磁盘设备限制I/O吞吐量</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># 上面“8:0”（主号，从号）由下面的命令查看而来。</span></span><br><span class="line">[root@localhost ~]# ls -l /dev/sda</span><br><span class="line">brw-rw---- 1 root disk 8, 0 Dec  6 03:25 /dev/sda</span><br><span class="line"></span><br><span class="line">[root@localhost cgconfig.d]# /etc/init.d/cgconfig reload                                              </span><br><span class="line">Stopping cgconfig service:                                 [  OK  ]</span><br><span class="line">Starting cgconfig service:                                 [  OK  ]</span><br><span class="line"></span><br><span class="line">[root@localhost ~]# cat /sys/block/sda/queue<span class="built_in">/scheduler </span></span><br><span class="line">noop anticipatory deadline [cfq]</span><br><span class="line">[root@localhost ~]# echo 3 &gt; /proc/sys/vm/drop_caches </span><br><span class="line">[root@localhost ~]# </span><br><span class="line">[root@localhost ~]# ls -lh /tmp/bigfile*              </span><br><span class="line">-rw-r--r-- 1 root root 1000M Dec  6 03:52 /tmp/bigfile1</span><br><span class="line">-rw-r--r-- 1 root root 1000M Dec  6 03:52 /tmp/bigfile2</span><br><span class="line">[root@localhost tmp]# cgexec -g blkio:lowio time cat ./bigfile1 &gt; /dev/<span class="literal">null</span></span><br><span class="line">[root@localhost tmp]# cgexec -g blkio:highio time cat ./bigfile2 &gt; /dev/<span class="literal">null</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3 id="Using-cgred"><a href="#Using-cgred" class="headerlink" title="Using cgred"></a>Using cgred</h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="meta"># vim /etc/cgrules.conf </span></span><br><span class="line"><span class="meta">#<span class="meta-string">&lt;user&gt;</span>         <span class="meta-string">&lt;controllers&gt;</span>   <span class="meta-string">&lt;destination&gt;</span></span></span><br><span class="line">john:*         blkio           ddio/</span><br><span class="line">*:dd         blkio           ddio/</span><br></pre></td></tr></table></figure>
-<p>[root@localhost ~]# /etc/init.d/cgred reload</p>
+<h3 id="Using-cgred"><a href="#Using-cgred" class="headerlink" title="Using cgred"></a>Using cgred</h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@localhost</span> ~]<span class="comment"># vim /etc/cgrules.conf </span></span><br><span class="line"><span class="comment">#&lt;user&gt;         &lt;controllers&gt;   &lt;destination&gt;</span></span><br><span class="line"><span class="symbol">john:</span>*         blkio           ddio/</span><br><span class="line">*<span class="symbol">:dd</span>         blkio           ddio/</span><br><span class="line">[root<span class="variable">@localhost</span> ~]<span class="comment"># /etc/init.d/cgred reload</span></span><br></pre></td></tr></table></figure>
 <h3 id="To-Freeze-Certain-Processes"><a href="#To-Freeze-Certain-Processes" class="headerlink" title="To Freeze Certain Processes"></a>To Freeze Certain Processes</h3><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">root@localhost ~</span>]<span class="meta"># vim /etc/cgconfig.d/freeze.conf</span></span><br><span class="line"><span class="keyword">group</span> stopit &#123;</span><br><span class="line">        freezer &#123;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">[<span class="meta">root@localhost ~</span>]<span class="meta"># /etc/init.d/cgconfig reload</span></span><br><span class="line">[<span class="meta">root@localhost ~</span>]<span class="meta"># echo #pid &gt; /cgroup/freezer/stopit/tasks           # 绑定进程和freezer控制器</span></span><br><span class="line">[<span class="meta">root@localhost ~</span>]<span class="meta"># echo FROZEN &gt; /cgroup/freezer/stopit/freezer.state    # 冻结该进程</span></span><br><span class="line">[<span class="meta">root@localhost ~</span>]<span class="meta"># echo THAWED &gt; /cgroup/freezer/stopit/freezer.state    # 解冻</span></span><br></pre></td></tr></table></figure>
 <h2 id="Command"><a href="#Command" class="headerlink" title="Command"></a>Command</h2><h3 id="strace-amp-ltrace"><a href="#strace-amp-ltrace" class="headerlink" title="strace &amp; ltrace"></a>strace &amp; ltrace</h3><ul>
 <li><p>strace: kernerl space(system call)</p>
@@ -1987,7 +1988,7 @@
       <div>
         <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
     <img id="wechat_subscriber_qcode" src="/images/blog/wechat-qcode.jpg" alt="kai yu wechat" style="width: 200px; max-width: 100%;">
-    <div>记录一些自己的“胡思乱语”，欢迎同道中人关注~</div>
+    <div>喜欢我~</div>
 </div>
 
       </div>
@@ -2054,6 +2055,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/07/life/巧克力/" rel="prev" title="巧克力推荐">
+                巧克力推荐 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -2132,7 +2137,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2147,7 +2152,15 @@
                     
                       
                     
-                    <span class="site-state-item-count">1</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2166,7 +2179,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
